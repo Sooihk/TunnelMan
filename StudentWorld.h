@@ -12,7 +12,7 @@
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
 //Edit #3
-// Edit from microsoft visual 
+
 class StudentWorld : public GameWorld
 {
 public:
