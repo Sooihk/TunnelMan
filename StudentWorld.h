@@ -11,6 +11,8 @@
 // Hi there new edit, updated 11/18
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
+//Edit #3
+
 class StudentWorld : public GameWorld
 {
 public:
