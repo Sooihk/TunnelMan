@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 
+// Hi there new edit, updated 11/18
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
 class StudentWorld : public GameWorld
