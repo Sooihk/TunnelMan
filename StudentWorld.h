@@ -46,6 +46,7 @@ public:
 	// new changesaaaa
 	// yep new one
 	// test
+	// test2
 private:
 	std::vector<Actor*> actors; // vector containing pointers to actor classes
 	TunnelMan* tunnelplayer; // pointer to TunnelMan class
