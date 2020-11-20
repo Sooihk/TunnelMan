@@ -44,7 +44,7 @@ public:
 	{
 		return actors;
 	}
-	// update 
+	// new changes
 private:
 	std::vector<Actor*> actors; // vector containing pointers to game objects
 	TunnelMan* tunnelplayer; // pointer to TunnelMan class
