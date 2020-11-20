@@ -39,7 +39,7 @@ public:
 	virtual void cleanUp()
 	{
 	}
-
+	// 1
 private:
 	std::vector<Actor*> actors; // vector containing pointers to actor classes
 	TunnelMan* tunnelplayer; // pointer to TunnelMan class
