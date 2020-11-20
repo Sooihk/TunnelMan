@@ -39,14 +39,13 @@ public:
 	virtual void cleanUp()
 	{
 	}
-
 	std::vector<Actor*> getActors()
 	{
 		return actors;
 	}
-	// new changes
+	// new changesaa
 private:
-	std::vector<Actor*> actors; // vector containing pointers to game objects
+	std::vector<Actor*> actors; // vector containing pointers to actor classes
 	TunnelMan* tunnelplayer; // pointer to TunnelMan class
 };
 
