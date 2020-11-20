@@ -3,11 +3,16 @@
 
 #include "GameWorld.h"
 #include "GameConstants.h"
+#include "Actor.h"
 #include <string>
 #include <vector>
 #include <algorithm>
 
+// edit new 
+// Hi there new edit, updated 11/18
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
+
+//Edit #3
 
 class StudentWorld : public GameWorld
 {
@@ -35,7 +40,13 @@ public:
 	{
 	}
 
+	std::vector<Actor*> getActors()
+	{
+		return actors;
+	}
 private:
+	std::vector<Actor*> actors; // vector containing pointers to game objects
+	TunnelMan* tunnelplayer; // pointer to TunnelMan class
 };
 
 #endif // STUDENTWORLD_H_
