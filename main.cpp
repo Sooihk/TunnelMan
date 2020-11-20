@@ -10,6 +10,8 @@ using namespace std;
   // replace the string literal with a full path name to the directory,
   // e.g., "Z:/CS32/TunnelMan/Assets" or "/Users/fred/cs32/TunnelMan/Assets"
 
+// Test Comment!
+
 const string assetDirectory = "Assets"; 
 
 // tesing poo
