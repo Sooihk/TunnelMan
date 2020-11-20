@@ -12,6 +12,7 @@ using namespace std;
 
 // Test Comment!
 // James comment 
+// Sherry's comment
 const string assetDirectory = "Assets"; 
 
 class GameWorld;
