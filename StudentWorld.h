@@ -3,6 +3,7 @@
 
 #include "GameWorld.h"
 #include "GameConstants.h"
+#include "Actor.h"
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -40,6 +41,8 @@ public:
 	}
 
 private:
+	std::vector<Actor*> actors; // vector containing pointers to actor classes
+	TunnelMan* tunnelplayer; // pointer to TunnelMan class
 };
 
 #endif // STUDENTWORLD_H_
