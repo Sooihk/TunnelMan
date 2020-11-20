@@ -11,10 +11,9 @@ using namespace std;
   // e.g., "Z:/CS32/TunnelMan/Assets" or "/Users/fred/cs32/TunnelMan/Assets"
 
 // Test Comment!
-
+// James comment 
 const string assetDirectory = "Assets"; 
 
-// tesing poo
 class GameWorld;
 
 GameWorld* createStudentWorld(string assetDir = "");
