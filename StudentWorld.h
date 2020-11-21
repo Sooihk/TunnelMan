@@ -4,15 +4,19 @@
 #include "GameWorld.h"
 #include "GameConstants.h"
 #include "Actor.h"
+
 #include <string>
 #include <vector>
 #include <algorithm>
 
-// edit new 
-// Hi there new edit, updated 11/18
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
-//Edit #3
+const static int earth_Width = 63;
+const static int earth_Height = 59;
+const static int tunnel_Xstart = 30;
+const static int tunnel_Ystart = 4;
+const static int tunnel_Xend = 33;
+const static int tunnel_Yend = 59;
 
 class StudentWorld : public GameWorld
 {
@@ -20,7 +24,10 @@ public:
 	StudentWorld(std::string assetDir)
 		: GameWorld(assetDir)
 	{}
-	virtual ~StudentWorld() {};
+	virtual ~StudentWorld() 
+	{
+		cleanUp();
+	};
 
 
 	virtual int init()
@@ -43,15 +50,15 @@ public:
 	{
 		return actors;
 	}
-	// new changesaaaa
-	// yep new one
-	// test
-	// test2
-	// test3
-	// test4
+	std::vector<std::vector<Earth*>> getEarth()
+	{
+		return earth;
+	}
+	
 private:
 	std::vector<Actor*> actors; // vector containing pointers to actor classes
-	TunnelMan* tunnelplayer; // pointer to TunnelMan class
+	TunnelMan* tunnelPlayer; // pointer to TunnelMan class
+	std::vector <std::vector< Earth*>> earth; 
 };
 
 #endif // STUDENTWORLD_H_
