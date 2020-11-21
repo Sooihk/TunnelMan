@@ -9,16 +9,34 @@ void TunnelMan::doSomething()
 	if (!getAlive()) // if dead, return immediately 
 		return;
 
-	int key;
-	if (getWorld()->getKey(key)) { // check if occupied (4X4)
+	int ch;
+	if (getWorld()->getKey(ch) == true)
+	{
+		// user hit a key this tick!
+		switch (ch)
+		{
+		case KEY_PRESS_LEFT:
+			//... face/move player to the left ...;
+			break;
+		case KEY_PRESS_RIGHT:
+			//... face/move player to the right ...;
+			break;
+		case KEY_PRESS_UP:
+			//... face/move player up ...;
+			break;
+		case KEY_PRESS_DOWN:
+			//... face/move player down ...;
+			break;
+		case KEY_PRESS_SPACE:
+			//... add a Squirt in front of the player...;
+			break;
+		case KEY_PRESS_ESCAPE:
+			//... aborts program ...;
+			break;
+		}
+	}
+	//else occupied
 		//remove and destroy the Earth objects from 4x4 area occupied from TunnelMan (to x+3, y+3)
 		//play SOUND_DIG (look at StudentWorld section for help)
-	}
-	else{
-		//check to see if a key was pressed, and act occordingly 
-		// excape = abort
-		// spacebar = fire squirt into oil field (if sufficient)
-		// left/right/up/down = either face left/right/up/down OR move in that direction
-	}
 
 }
