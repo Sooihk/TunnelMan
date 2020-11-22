@@ -4,11 +4,11 @@
 // Students:  Add code to this file (if you wish), Actor.h, StudentWorld.h, and StudentWorld.cpp
 
 
-Actor::Actor(int imageID, int startX, int startY, Direction dir, double size, unsigned int depth)
-	: GraphObject(imageID, startX, startY, dir, size, depth)
-{}
+//Actor::Actor(int imageID, int startX, int startY, Direction dir, double size, unsigned int depth)
+//	: GraphObject(imageID, startX, startY, dir, size, depth)
+//{} commented this because already created in .h file (error pops up)
 
-TunnelMan::TunnelMan(StudentWorld* gameWorld) : Actor(TID_PLAYER, 30, 60, right, 1.0, 0)
+TunnelMan::TunnelMan(StudentWorld* gameWorld) : Actor(gameWorld, TID_PLAYER, 30, 60, right, 1.0, 0)
 {
 	setVisible(true);
 	settingWorld(gameWorld);

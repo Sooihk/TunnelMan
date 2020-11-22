@@ -21,26 +21,29 @@ const static int tunnel_Yend = 59;
 class StudentWorld : public GameWorld
 {
 public:
-	StudentWorld(std::string assetDir): GameWorld(assetDir) {}
+	StudentWorld(std::string assetDir, TunnelMan* tp): GameWorld(assetDir) 
+	{
+		tunnelPlayer = tp;
+	}
 	virtual ~StudentWorld() 
 	{
 		cleanUp();
 	};
 
 
-	virtual int init()
-	{}
+	virtual int init();
+	//{}
 
-	virtual int move()
-	{
+	virtual int move();
+	//{
 		// This code is here merely to allow the game to build, run, and terminate after you hit enter a few times.
 		// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
 		//decLives();
 		//return GWSTATUS_PLAYER_DIED;
-	}
+	//}
 
-	virtual void cleanUp()
-	{}
+	virtual void cleanUp();
+	//{}
 
 	void diggingEarth(); // function where tunnel man digs Earth
 
