@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 GameWorld* createStudentWorld(string assetDir)
@@ -60,5 +61,80 @@ void StudentWorld::cleanUp()
 		it = actors.erase(it); // delete current pointer object and move on to next element
 	}
 
+}
+
+bool StudentWorld::checkEarth(int col, int row) const
+{
+	// checking to see if index contains earth
+	if ((col >= tunnel_Xstart && col <= tunnel_Xend && row >= tunnel_Ystart && row <= tunnel_Yend)
+		|| row < 0 || row > earth_Length)
+	{
+		return false;
+	}
+	return true;
+}
+
+void StudentWorld::diggingEarth()
+{
+	int row = tunnelPlayer->getY(); //get current row (y-axis) where TunnelMan is
+	int column = tunnelPlayer->getX(); //get current column (x-axis) where TunnelMan is
+
+	Actor::Direction tunnelmanDir = tunnelPlayer->getDirection(); // get direction of tunnelman
+
+	switch (tunnelmanDir)
+	{
+		case Actor::Direction::up:
+			for (int i = 0; i < 4; i++)
+			{
+				if (checkEarth(column + i, row + 3))
+				{
+					if (earth[column + i][row + 3])
+					{
+						delete earth[column + i][row + 3];
+						earth[column + i][row + 3] = nullptr;
+						playSound(SOUND_DIG);
+					}
+				}
+			}
+		case Actor::Direction::down:
+			for (int i = 0; i < 4; i++)
+			{
+				if (checkEarth(column + i, row))
+				{
+					if (earth[column + i][row])
+					{
+						delete earth[column + i][row];
+						earth[column + i][row] = nullptr;
+						playSound(SOUND_DIG);
+					}
+				}
+			}
+		case Actor::Direction::right:
+			for (int i = 0; i < 4; i++)
+			{
+				if (checkEarth(column + 3, row+i))
+				{
+					if (earth[column + 3][row+i])
+					{
+						delete earth[column + 3][row+i];
+						earth[column + 3][row+i] = nullptr;
+						playSound(SOUND_DIG);
+					}
+				}
+			}
+		case Actor::Direction::left:
+			for (int i = 0; i < 4; i++)
+			{
+				if (checkEarth(column, row+i))
+				{
+					if (earth[column][row+i])
+					{
+						delete earth[column][row+i];
+						earth[column][row+i] = nullptr;
+						playSound(SOUND_DIG);
+					}
+				}
+			}
+	}
 }
 // Students:  Add code to this file (if you wish), StudentWorld.h, Actor.h and Actor.cpp

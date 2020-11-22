@@ -3,30 +3,42 @@
 
 #include "GraphObject.h"
 #include "GameConstants.h"
+
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
 class StudentWorld;
-class Actor : public GraphObject {
+class TunnelMan;
+
+class Actor : public GraphObject 
+{
 private:
-	bool aliveStatus;
-	StudentWorld* world;
+	bool aliveStat;
+	StudentWorld* newWorld;
 public:
-	Actor(int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth) // constructor
-		: GraphObject(imageNum, xCoords, yCoords, move, size, depth)
+	// constructor
+	Actor(int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth): GraphObject(imageNum, xCoords, yCoords, move, size, depth)
 	{
 		setVisible(true);
-		aliveStatus = true;
+		aliveStat = true;
+
 	};
 
 	virtual ~Actor() {}; // destructor
 
 	virtual void doSomething() = 0; // doSomething function that gets overridden
 
-	void setAlive(bool a) {	aliveStatus = a; } // sets aliveStatus
+	bool actorAlive() const { return aliveStat; };
 
-	bool getAlive() { return aliveStatus; } // sets aliveStatus
+	//setter function
+	void settingWorld(StudentWorld* gameWorld)
+	{
+		newWorld = gameWorld;
+	};
+	//void setAlive(bool a) {	aliveStatus = a; } // sets aliveStatus
+	//bool getAlive() { return aliveStatus; } // sets aliveStatus
 
-	StudentWorld* getWorld() { return world; }
+	//getter function
+	StudentWorld* getWorld() const { return newWorld; };
 
 };
 
@@ -37,7 +49,7 @@ public:
 	{ 
 		setVisible(true);
 	};
-
+	virtual void doSomething() {}; // necessary to make Earth class not a abstract data class
 	virtual ~Earth() {}; // destructor
 
 };
@@ -50,10 +62,7 @@ private:
 	int goldNuggets = 0;
 
 public:
-	TunnelMan(int xCoords, int yCoords) : Actor(TID_PLAYER, 30, 60, right, 1.0, 0) // constructor
-	{
-		setVisible(true);
-	};
+	TunnelMan(StudentWorld* gameWorld);
 
 	virtual ~TunnelMan() {}; // destructor
 
