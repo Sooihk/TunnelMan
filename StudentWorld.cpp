@@ -20,11 +20,11 @@ int StudentWorld::init()
 		vector<Earth*> e;
 		for (int y = 0; y < VIEW_HEIGHT - 4; y++) // y is row
 		{
-			if (!(y >= tunnel_Xstart && y <= tunnel_Xend
-				&& x >= tunnel_Ystart && x <= tunnel_Yend))
+			if (!(y >= tunnel_Ystart && y <= tunnel_Yend
+				&& x >= tunnel_Xstart && x <= tunnel_Xend))
 				// if x,y is not in spot where the initial tunnel is
 			{
-				e.push_back(new Earth(this, y, x));
+				e.push_back(new Earth(this, x, y));
 			}
 		}
 		earth.push_back(e); // push vector of rows into a column
