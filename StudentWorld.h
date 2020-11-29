@@ -42,8 +42,8 @@ public:
 		//return GWSTATUS_PLAYER_DIED;
 	//}
 
-	virtual void cleanUp();
-	//{}
+	virtual void cleanUp()
+	{}
 
 	void diggingEarth(); // function where tunnel man digs Earth
 
