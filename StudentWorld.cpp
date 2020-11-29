@@ -10,7 +10,7 @@ GameWorld* createStudentWorld(string assetDir)
 	return new StudentWorld(assetDir);
 }
 
-int StudentWorld::init()
+int StudentWorld::init() // creates oil field and tunnelman
 {
 
 	tunnelPlayer = new TunnelMan(this); // create TunnelMan object
@@ -33,14 +33,14 @@ int StudentWorld::init()
 	return GWSTATUS_CONTINUE_GAME;
 }
 
-int StudentWorld::move()
+int StudentWorld::move() // tells all actors in the current tick to doSomething()
 {
 	tunnelPlayer->doSomething(); // ask TunnelMan object to do something
 
 	return GWSTATUS_CONTINUE_GAME;
 }
 
-void StudentWorld::cleanUp()
+void StudentWorld::cleanUp() // delete the level
 {
 	delete tunnelPlayer; // delete TunnelMan object
 
@@ -63,7 +63,7 @@ void StudentWorld::cleanUp()
 
 }
 
-bool StudentWorld::checkEarth(int col, int row) const
+bool StudentWorld::checkEarth(int col, int row) const // creating the initial tunnel 
 {
 	// checking to see if index contains earth
 	if ((col >= tunnel_Xstart && col <= tunnel_Xend && row >= tunnel_Ystart && row <= tunnel_Yend)
@@ -74,7 +74,7 @@ bool StudentWorld::checkEarth(int col, int row) const
 	return true;
 }
 
-void StudentWorld::diggingEarth()
+void StudentWorld::diggingEarth() // digs earth
 {
 	int row = tunnelPlayer->getY(); //get current row (y-axis) where TunnelMan is
 	int column = tunnelPlayer->getX(); //get current column (x-axis) where TunnelMan is
@@ -84,52 +84,53 @@ void StudentWorld::diggingEarth()
 	switch (tunnelmanDir)
 	{
 	case Actor::Direction::up:
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++) // digs the next four indexes in the current direction
 		{
-			if (checkEarth(column + i, row + 3))
+			if (checkEarth(column + i, row + 3)) // checks if we're in the tunnel
 			{
-				if (earth[column + i][row + 3])
+				if (earth[column + i][row + 3]) // checks for earth that has been dug already
 				{
-					delete earth[column + i][row + 3];
+					delete earth[column + i][row + 3]; // deletes earth 3 indexes up from the original TunnelMan index 4 times
 					earth[column + i][row + 3] = nullptr;
 					playSound(SOUND_DIG);
 				}
 			}
+
 		}
 	case Actor::Direction::down:
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++) // digs the next four indexes in the current direction
 		{
-			if (checkEarth(column + i, row))
+			if (checkEarth(column + i, row)) // checks if we're in the tunnel
 			{
-				if (earth[column + i][row])
+				if (earth[column + i][row]) // checks for earth that has been dug already
 				{
-					delete earth[column + i][row];
+					delete earth[column + i][row]; // deletes earth from the original location down of TunnelMan index 4 times
 					earth[column + i][row] = nullptr;
 					playSound(SOUND_DIG);
 				}
 			}
 		}
 	case Actor::Direction::right:
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++) // digs the next four indexes in the current direction
 		{
-			if (checkEarth(column + 3, row + i))
+			if (checkEarth(column + 3, row + i)) // checks if we're in the tunnel
 			{
-				if (earth[column + 3][row + i])
+				if (earth[column + 3][row + i]) // checks for earth that has been dug already
 				{
-					delete earth[column + 3][row + i];
+					delete earth[column + 3][row + i]; // deletes earth 3 indexes right from the original TunnelMan index 4 times
 					earth[column + 3][row + i] = nullptr;
 					playSound(SOUND_DIG);
 				}
 			}
 		}
 	case Actor::Direction::left:
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++) // digs the next four indexes in the current direction
 		{
-			if (checkEarth(column, row + i))
+			if (checkEarth(column, row + i)) // checks if we're in the tunnel
 			{
-				if (earth[column][row + i])
+				if (earth[column][row + i]) // checks for earth that has been dug already
 				{
-					delete earth[column][row + i];
+					delete earth[column][row + i]; // deletes earth from the original location left of TunnelMan index 4 times
 					earth[column][row + i] = nullptr;
 					playSound(SOUND_DIG);
 				}

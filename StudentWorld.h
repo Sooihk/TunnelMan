@@ -34,20 +34,11 @@ public:
 		cleanUp();
 	};
 
+	virtual int init(); // creates a new oil field and new set of actors
 
-	virtual int init();
-	//{}
+	virtual int move(); // ask all active actors to doSomething(), then removes any actors in the current tick
 
-	virtual int move();
-	//{
-		// This code is here merely to allow the game to build, run, and terminate after you hit enter a few times.
-		// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
-		//decLives();
-		//return GWSTATUS_PLAYER_DIED;
-	//}
-
-	virtual void cleanUp();
-	//{}
+	virtual void cleanUp(); // destroys level
 
 	void diggingEarth(); // function where tunnel man digs Earth
 
@@ -65,7 +56,7 @@ public:
 private:
 	std::vector<Actor*> actors; // vector containing pointers to actor classes
 	TunnelMan* tunnelPlayer = nullptr; // pointer to TunnelMan class
-	std::vector <std::vector< Earth*>> earth;
+	std::vector <std::vector< Earth*>> earth; // vector container holding all earth objects
 };
 
 #endif // STUDENTWORLD_H_

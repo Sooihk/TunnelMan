@@ -12,8 +12,8 @@ class TunnelMan;
 class Actor : public GraphObject
 {
 private:
-	bool aliveStat;
-	StudentWorld* newWorld;
+	bool aliveStat;  // variable to state if object is alive or dead
+	StudentWorld* newWorld; // pointer to StudentWorld class object
 public:
 	// constructor
 	Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth)
@@ -28,18 +28,16 @@ public:
 
 	virtual void doSomething() = 0; // doSomething function that gets overridden
 
-	bool actorAlive() const { return aliveStat; };
+	bool actorAlive() const { return aliveStat; }; //returns status of object
 
 	//setter function
-	void settingWorld(StudentWorld* gameWorld)
-	{
-		newWorld = gameWorld;
-	};
+	void settingWorld(StudentWorld* gameWorld){ newWorld = gameWorld;};
+
 	//void setAlive(bool a) {	aliveStatus = a; } // sets aliveStatus
 	//bool getAlive() { return aliveStatus; } // sets aliveStatus
 
 	//getter function
-	StudentWorld* getWorld() const { return newWorld; };
+	StudentWorld* getWorld() const { return newWorld; }; 
 
 };
 
@@ -63,12 +61,13 @@ private:
 	int goldNuggets = 0;
 
 public:
-	TunnelMan(StudentWorld* gameWorld);
+	TunnelMan(StudentWorld* gameWorld); // prototype
 
 	virtual ~TunnelMan() {}; // destructor
 
-	void doSomething();
+	virtual void doSomething();
 
+	// getter functions
 	int getHitPoints() { return hitPoints; }
 	int getWater() { return water; }
 	int getSonarCharge() { return sonarCharge; }
