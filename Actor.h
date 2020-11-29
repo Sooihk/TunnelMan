@@ -7,9 +7,9 @@
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
 class StudentWorld;
-class TunnelMan;
+//class TunnelMan;
 
-class Actor : public GraphObject 
+class Actor : public GraphObject
 {
 private:
 	bool aliveStat;
@@ -31,9 +31,9 @@ public:
 	bool actorAlive() const { return aliveStat; };
 
 	//setter function
-	void settingWorld(StudentWorld* gameWorld) 
-	{ 
-		newWorld = gameWorld; 
+	void settingWorld(StudentWorld* gameWorld)
+	{
+		newWorld = gameWorld;
 	};
 	//void setAlive(bool a) {	aliveStatus = a; } // sets aliveStatus
 	//bool getAlive() { return aliveStatus; } // sets aliveStatus
@@ -46,8 +46,8 @@ public:
 class Earth : public Actor {
 private:
 public:
-	Earth(StudentWorld *w, int xCoords, int yCoords) : Actor(w, TID_EARTH, xCoords, yCoords, right, 0.25, 3) // constructor
-	{ 
+	Earth(StudentWorld* w, int xCoords, int yCoords) : Actor(w, TID_EARTH, xCoords, yCoords, right, 0.25, 3) // constructor
+	{
 		setVisible(true);
 	};
 	virtual void doSomething() {}; // necessary to make Earth class not a abstract data class
