@@ -18,14 +18,18 @@ const static int tunnel_Ystart = 4;
 const static int tunnel_Xend = 33;
 const static int tunnel_Yend = 59;
 
+class Actor;
+class TunnelMan;
+class Earth;
+
 class StudentWorld : public GameWorld
 {
 public:
-	StudentWorld(std::string assetDir, TunnelMan* tp): GameWorld(assetDir) 
+	StudentWorld(std::string assetDir) : GameWorld(assetDir)
 	{
-		tunnelPlayer = tp;
+
 	}
-	virtual ~StudentWorld() 
+	virtual ~StudentWorld()
 	{
 		cleanUp();
 	};
@@ -55,13 +59,13 @@ public:
 	{
 		return earth;
 	}
-	
+
 	bool checkEarth(int col, int row) const; // check to see if Earth is in current index
 
 private:
 	std::vector<Actor*> actors; // vector containing pointers to actor classes
-	TunnelMan* tunnelPlayer; // pointer to TunnelMan class
-	std::vector <std::vector< Earth*>> earth; 
+	TunnelMan* tunnelPlayer = nullptr; // pointer to TunnelMan class
+	std::vector <std::vector< Earth*>> earth;
 };
 
 #endif // STUDENTWORLD_H_

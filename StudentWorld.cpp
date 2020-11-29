@@ -5,24 +5,24 @@
 #include <algorithm>
 using namespace std;
 
-GameWorld* createStudentWorld(string assetDir, TunnelMan *tp)
+GameWorld* createStudentWorld(string assetDir)
 {
-	return new StudentWorld(assetDir, tp);
+	return new StudentWorld(assetDir);
 }
 
 int StudentWorld::init()
 {
-	
+
 	tunnelPlayer = new TunnelMan(this); // create TunnelMan object
 
 	for (int x = 0; x < VIEW_WIDTH; x++) // x is column
 	{
-		vector<Earth*> e; 
-		for (int y = 0; y < VIEW_HEIGHT-4; y++) // y is row
+		vector<Earth*> e;
+		for (int y = 0; y < VIEW_HEIGHT - 4; y++) // y is row
 		{
 			if (!(y >= tunnel_Xstart && y <= tunnel_Xend
 				&& x >= tunnel_Ystart && x <= tunnel_Yend))
-			// if x,y is not in spot where the initial tunnel is
+				// if x,y is not in spot where the initial tunnel is
 			{
 				e.push_back(new Earth(this, y, x));
 			}
@@ -83,58 +83,58 @@ void StudentWorld::diggingEarth()
 
 	switch (tunnelmanDir)
 	{
-		case Actor::Direction::up:
-			for (int i = 0; i < 4; i++)
+	case Actor::Direction::up:
+		for (int i = 0; i < 4; i++)
+		{
+			if (checkEarth(column + i, row + 3))
 			{
-				if (checkEarth(column + i, row + 3))
+				if (earth[column + i][row + 3])
 				{
-					if (earth[column + i][row + 3])
-					{
-						delete earth[column + i][row + 3];
-						earth[column + i][row + 3] = nullptr;
-						playSound(SOUND_DIG);
-					}
+					delete earth[column + i][row + 3];
+					earth[column + i][row + 3] = nullptr;
+					playSound(SOUND_DIG);
 				}
 			}
-		case Actor::Direction::down:
-			for (int i = 0; i < 4; i++)
+		}
+	case Actor::Direction::down:
+		for (int i = 0; i < 4; i++)
+		{
+			if (checkEarth(column + i, row))
 			{
-				if (checkEarth(column + i, row))
+				if (earth[column + i][row])
 				{
-					if (earth[column + i][row])
-					{
-						delete earth[column + i][row];
-						earth[column + i][row] = nullptr;
-						playSound(SOUND_DIG);
-					}
+					delete earth[column + i][row];
+					earth[column + i][row] = nullptr;
+					playSound(SOUND_DIG);
 				}
 			}
-		case Actor::Direction::right:
-			for (int i = 0; i < 4; i++)
+		}
+	case Actor::Direction::right:
+		for (int i = 0; i < 4; i++)
+		{
+			if (checkEarth(column + 3, row + i))
 			{
-				if (checkEarth(column + 3, row+i))
+				if (earth[column + 3][row + i])
 				{
-					if (earth[column + 3][row+i])
-					{
-						delete earth[column + 3][row+i];
-						earth[column + 3][row+i] = nullptr;
-						playSound(SOUND_DIG);
-					}
+					delete earth[column + 3][row + i];
+					earth[column + 3][row + i] = nullptr;
+					playSound(SOUND_DIG);
 				}
 			}
-		case Actor::Direction::left:
-			for (int i = 0; i < 4; i++)
+		}
+	case Actor::Direction::left:
+		for (int i = 0; i < 4; i++)
+		{
+			if (checkEarth(column, row + i))
 			{
-				if (checkEarth(column, row+i))
+				if (earth[column][row + i])
 				{
-					if (earth[column][row+i])
-					{
-						delete earth[column][row+i];
-						earth[column][row+i] = nullptr;
-						playSound(SOUND_DIG);
-					}
+					delete earth[column][row + i];
+					earth[column][row + i] = nullptr;
+					playSound(SOUND_DIG);
 				}
 			}
+		}
 	}
 }
 // Students:  Add code to this file (if you wish), StudentWorld.h, Actor.h and Actor.cpp
