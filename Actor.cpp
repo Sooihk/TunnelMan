@@ -60,7 +60,7 @@ void TunnelMan::doSomething()
 
 		case KEY_PRESS_UP:
 			//... face/move player up ...;
-			if (currentDirection == up && x < VIEW_HEIGHT - 4) // if tunnelMan can move up and not out of bounds
+			if (currentDirection == up && y < VIEW_HEIGHT - 4) // if tunnelMan can move up and not out of bounds
 			{
 				moveTo(x, y + 1);
 			}
@@ -73,7 +73,7 @@ void TunnelMan::doSomething()
 
 		case KEY_PRESS_DOWN:
 			//... face/move player down ...;
-			if (currentDirection == down && x < VIEW_HEIGHT - 4) // if tunnelMan can move down and not out of bounds
+			if (currentDirection == down && y > 0) // if tunnelMan can move down and not out of bounds
 			{
 				moveTo(x, y - 1);
 			}
