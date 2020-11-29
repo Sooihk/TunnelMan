@@ -5,9 +5,9 @@
 #include <algorithm>
 using namespace std;
 
-GameWorld* createStudentWorld(string assetDir)
+GameWorld* createStudentWorld(string assetDir, TunnelMan *tp)
 {
-	return new StudentWorld(assetDir);
+	return new StudentWorld(assetDir, tp);
 }
 
 int StudentWorld::init()
@@ -24,7 +24,7 @@ int StudentWorld::init()
 				&& x >= tunnel_Ystart && x <= tunnel_Yend))
 			// if x,y is not in spot where the initial tunnel is
 			{
-				e.push_back(new Earth(y, x));
+				e.push_back(new Earth(this, y, x));
 			}
 		}
 		earth.push_back(e); // push vector of rows into a column

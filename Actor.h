@@ -16,11 +16,12 @@ private:
 	StudentWorld* newWorld;
 public:
 	// constructor
-	Actor(int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth): GraphObject(imageNum, xCoords, yCoords, move, size, depth)
+	Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth)
+		: GraphObject(imageNum, xCoords, yCoords, move, size, depth)
 	{
 		setVisible(true);
 		aliveStat = true;
-
+		newWorld = w;
 	};
 
 	virtual ~Actor() {}; // destructor
@@ -30,9 +31,9 @@ public:
 	bool actorAlive() const { return aliveStat; };
 
 	//setter function
-	void settingWorld(StudentWorld* gameWorld)
-	{
-		newWorld = gameWorld;
+	void settingWorld(StudentWorld* gameWorld) 
+	{ 
+		newWorld = gameWorld; 
 	};
 	//void setAlive(bool a) {	aliveStatus = a; } // sets aliveStatus
 	//bool getAlive() { return aliveStatus; } // sets aliveStatus
@@ -45,7 +46,7 @@ public:
 class Earth : public Actor {
 private:
 public:
-	Earth(int xCoords, int yCoords) : Actor(TID_EARTH, xCoords, yCoords, right, 0.25, 3) // constructor
+	Earth(StudentWorld *w, int xCoords, int yCoords) : Actor(w, TID_EARTH, xCoords, yCoords, right, 0.25, 3) // constructor
 	{ 
 		setVisible(true);
 	};
