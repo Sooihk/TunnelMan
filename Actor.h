@@ -12,7 +12,7 @@ class TunnelMan;
 class Actor : public GraphObject
 {
 private:
-	bool aliveStat;  // variable to state if object is alive or dead
+	bool actorState;  // variable to state if object is alive or dead
 	StudentWorld* newWorld; // pointer to StudentWorld class object
 public:
 	// constructor
@@ -20,20 +20,23 @@ public:
 		: GraphObject(imageNum, xCoords, yCoords, move, size, depth)
 	{
 		setVisible(true);
-		aliveStat = true;
+		actorState = true;
 		newWorld = w;
 	};
+
 	virtual ~Actor() {}; // destructor
+
 	virtual void doSomething() = 0; // doSomething function that gets overridden
-	bool actorAlive() const { return aliveStat; }; //returns status of object
+
 
 	//setter function
-	void settingWorld(StudentWorld* gameWorld){ newWorld = gameWorld;};
-	//void setAlive(bool a) {	aliveStatus = a; } // sets aliveStatus
-	//bool getAlive() { return aliveStatus; } // sets aliveStatus
+	void settingWorld(StudentWorld* gameWorld) { newWorld = gameWorld; };
+
+	void setactorState(bool a) { actorState = a; } // sets aliveStatus
 
 	//getter function
-	StudentWorld* getWorld() const { return newWorld; }; 
+	bool getactorState() { return actorState; } // sets aliveStatus
+	StudentWorld* getWorld() const { return newWorld; };
 
 };
 
@@ -67,6 +70,33 @@ public:
 	int getWater() { return water; }
 	int getSonarCharge() { return sonarCharge; }
 	int getGoldNuggest() { return goldNuggets; }
+
+};
+
+class Protestor : public Actor
+{
+public:
+	Protestor(StudentWorld* gameWorld); // constructor
+	virtual void doSomething();
+	virtual ~Protestor() {}; // destructor
+
+	//setters
+	void setTicksToWaitBetweenMoves(int tick) { ticksToWaitBetweenMoves = tick; }
+	void setleavetheOilField() { leavetheOilField = true; }
+	void setnumSquaresToMoveInCurrentDirection(int num) { numSquaresToMoveInCurrentDirection = num; }
+	//getters
+	int getHitPoints() { return hitPoints; }
+	int getTicksToWaitBetweenMoves() const { return ticksToWaitBetweenMoves; }
+	bool getleavetheOilField()const { return leavetheOilField; }
+	int getnumSquaresToMoveInCurrentDirection() const { return numSquaresToMoveInCurrentDirection; }
+
+
+private:
+	int hitPoints = 5;
+	int ticksToWaitBetweenMoves = 0;
+	bool leavetheOilField = false;
+	int numSquaresToMoveInCurrentDirection = 0;
+
 
 };
 

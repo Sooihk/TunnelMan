@@ -92,3 +92,17 @@ void TunnelMan::doSomething()
 	getWorld()->diggingEarth(); // StudentWorld function digs earth based on player movement
 
 }
+
+// base protestor constructor
+Protestor::Protestor(StudentWorld* gameWorld) : Actor(gameWorld, TID_PROTESTER, 60, 60, left, 1.0, 0)
+{
+	setVisible(true);
+	settingWorld(gameWorld);
+}
+
+void Protestor::doSomething()
+{
+
+}
+
+void Protestor::set
