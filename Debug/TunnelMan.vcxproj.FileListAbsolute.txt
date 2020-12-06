@@ -1,0 +1,2 @@
+C:\Users\sherr\source\repos\CS 30\TunnelMan\TunnelMan\Debug\TunnelMan.exe
+C:\Users\sherr\source\repos\CS 30\TunnelMan\TunnelMan\Debug\TunnelMan.pdb
