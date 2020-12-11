@@ -8,6 +8,60 @@ using namespace std;
 // Students:  Add code to this file (if you wish), Actor.h, StudentWorld.h, and StudentWorld.cpp
 
 // constructor
+Actor::Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move,
+	double size, unsigned int dept) :GraphObject(imageNum, xCoords, yCoords, move, size, depth), newWorld(w), actorAlive(true)
+{
+	setVisible(true);
+}
+bool Actor::isAlive()
+{
+	return actorAlive;
+}
+StudentWorld* Actor::getWorld()
+{
+	return newWorld;
+}
+Actor::~Actor()
+{
+	setVisible(false);
+}
+void Actor::isDead()
+{
+	actorAlive = false;
+}
+void Actor::moveTowards(int x, int y)
+{
+	if (x > 60)
+	{
+		x = 60;
+	}
+	if (y > 60)
+	{
+		y = 60;
+	}
+	if (x < 0)
+	{
+		x = 0;
+	}
+	if (y < 0)
+	{
+		y = 0;
+	}
+	GraphObject::moveTo(x, y);
+}
+
+Human::Human(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, int health)
+	:Actor(w, imageNum, xCoords, yCoords, move, 1.0, 0), human_HP(health) {}
+
+void Human::decreaseHealthPoints(int damage)
+{
+	human_HP -= damage;
+}
+int Human::getHealthPoints()
+{
+	return human_HP;
+}
+
 TunnelMan::TunnelMan(StudentWorld* gameWorld) : Actor(gameWorld, TID_PLAYER, 30, 60, right, 1.0, 0)
 {
 	setVisible(true);
