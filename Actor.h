@@ -3,40 +3,43 @@
 
 #include "GraphObject.h"
 #include "GameConstants.h"
+#include "StudentWorld.h"
+#include <string>
 
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
 class StudentWorld;
-class TunnelMan;
 
 class Actor : public GraphObject
 {
 private:
-	bool actorState;  // variable to state if object is alive or dead
+	bool actorAlive;  // variable to state if object is alive or dead
 	StudentWorld* newWorld; // pointer to StudentWorld class object
 public:
 	// constructor
-	Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth)
-		: GraphObject(imageNum, xCoords, yCoords, move, size, depth)
-	{
-		setVisible(true);
-		actorState = true;
-		newWorld = w;
-	};
+	Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth);
 
 	virtual ~Actor() {}; // destructor
-
 	virtual void doSomething() = 0; // doSomething function that gets overridden
+	virtual void actorAnnoyed(int health) {};
+	bool isAlive();
+	void isDead();
+	void moveTowards(int x, int y);
 
 
-	//setter function
-	void settingWorld(StudentWorld* gameWorld) { newWorld = gameWorld; };
+	StudentWorld* getWorld();
+};
 
-	void setactorState(bool a) { actorState = a; } // sets aliveStatus
-
-	//getter function
-	bool getactorState() { return actorState; } // sets aliveStatus
-	StudentWorld* getWorld() const { return newWorld; };
+class Human : public Actor
+{
+private:
+	int human_HP;
+public:
+	Human(Student* w, int imageNum, int xCoords, int yCoords, Direction move, int health);
+	int getHealthPoints();
+	void decreaseHealthPoints(int damage);
+	virtual void moveTowardsDirection(Direction dir) = 0;
+	virtual void actorAnnoyed(int health) = 0
 
 };
 
