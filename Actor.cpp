@@ -9,7 +9,7 @@ using namespace std;
 
 // constructor
 Actor::Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move,
-	double size, unsigned int dept) :GraphObject(imageNum, xCoords, yCoords, move, size, depth), newWorld(w), actorAlive(true)
+	double size, unsigned int depth) :GraphObject(imageNum, xCoords, yCoords, move, size, depth), newWorld(w), actorAlive(true)
 {
 	setVisible(true);
 }
