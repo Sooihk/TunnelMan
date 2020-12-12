@@ -23,8 +23,8 @@ public:
 	virtual ~Actor() {}; // destructor
 	virtual void doSomething() = 0; // doSomething function that gets overridden
 	virtual void actorAnnoyed(int health) {};
-	bool isAlive();
-	void isDead();
+	bool isAlive(); 
+	void isDead(); 
 	void moveTowards(int x, int y);
 	StudentWorld* getWorld();
 };
@@ -33,7 +33,7 @@ public:
 
 class Human : public Actor
 {
-private:
+private: 
 	int human_HP;
 public:
 	Human(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, int health);
@@ -86,17 +86,17 @@ public:
 	Protestor(StudentWorld* gameWorld, int imageNum, int health); // constructor
 	virtual void doSomething();
 	virtual void actorAnnoyed(int health);
-	virtual void takeBribe();
+	virtual void takeBribe(); 
 
 	void stunLocked();
 	void pickDirectionToTurn();
 	void randomNumberMoves();
-	void moveDirection(Direction dir);
-
+	virtual void moveTowardsDirection(Direction dir);
+	
 	bool facingPlayer();
 	bool straightTowardsPlayer(Direction dir);
 	bool atIntersection();
-
+	
 	Direction directionsTowardsTunnelMan();
 	Direction randomSetDirection();
 
@@ -117,7 +117,7 @@ public:
 
 class Hardcore_Protestor : public Protestor
 {
-public:
+public: 
 	Hardcore_Protestor(StudentWorld* world);
 };
 
@@ -127,10 +127,22 @@ class Boulder : public Actor {
 private:
 	bool stable;
 	int ticks;
+	bool falling;
 public:
 	Boulder(StudentWorld* w, int xCoords, int yCoords);
 	virtual void doSomething();
 	void annoyPerson();
+};
+
+// .............................. SQUIRT CLASS ..............................
+
+class Squirt : public Actor {
+private:
+	int travel;
+public:
+	Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir);
+	virtual void doSomething();
+	bool hitProtestors();
 };
 
 // .............................. GOODIES CLASS ..............................

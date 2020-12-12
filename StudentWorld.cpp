@@ -16,7 +16,7 @@ GameWorld* createStudentWorld(string assetDir)
 // .............................. STUDENTWORLD CLASS ..............................
 
 
-StudentWorld::StudentWorld(string assetDir) :GameWorld(assetDir)
+StudentWorld::StudentWorld(string assetDir):GameWorld(assetDir)
 {
 	theFirstTick = true;
 	tickSincePreviousIteration = 0;
@@ -30,7 +30,7 @@ StudentWorld::~StudentWorld()
 	cleanUp();
 }
 
-TunnelMan* StudentWorld::getPlayer()
+TunnelMan * StudentWorld::getPlayer()
 {
 	return tunnelPlayer;
 }
@@ -67,7 +67,7 @@ int StudentWorld::move() // tells all actors in the current tick to doSomething(
 	// Give each Actor a chance to do something
 	for (auto it : actors)
 	{
-		if (it->isAlive()) //check to see if actor is alive
+		if(it->isAlive()) //check to see if actor is alive
 		{
 			it->doSomething();
 		}
@@ -108,23 +108,86 @@ void StudentWorld::cleanUp() // delete the level
 
 }
 
+// function which removes earth object 4by4 area occupied by tunnelman, returns true if yes
+bool StudentWorld::diggingEarth(int col, int row)
+{
+	bool destroyedEarth = false;
+	// remove earth objects from the 4by4 area occupied by the tunnelman
+	for (int i = col; i < col + 4; i++) // use nested for loop to delete 2d earthArray index
+	{
+		for (int j = row; j < row + 3; j++)
+		{
+			if (earthArray[i][j] != nullptr) // check if earth was already dugged
+			{
+				destroyedEarth = true;
+				delete earthArray[i][j];
+				earthArray[i][j] = nullptr;
+			}
+		}
+	}
+	return destroyedEarth;
+}
+
+// function which decreases number of protestors on field
 void StudentWorld::decreaseProtestor()
 {
 	numberofActiveProtestors--;
 }
 
+// function which returns true or false wherein can the actor move the desired direction without hitting a earth or boulder object
 bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Direction dir)
 {
 	// switch case returning true or false based upon actor's movement 
 	switch (dir)
 	{
-		// case where actor can move left
-	case GraphObject::left:
+	// case whether the actor can move up
+	case GraphObject::up: 
 	{
-		return();
+		// if statement checking if above the actor there isn't an earth and boulder object and current x
+		// isnt the exit point
+		if (!checkBoulder(x, y + 1) && !checkEarth(x, y + 1) && y != 60)
+		{
+			return true;
+		}
+	}
+	// case whether the actor can move down
+	case GraphObject::down:
+	{
+		// if statement checking if above the actor there isn't an earth and boulder object and current x
+		// isnt the exit point
+		if (!checkBoulder(x, y - 1) && !checkEarth(x, y - 1) && y != 60)
+		{
+			return true;
+		}
+	}
+	// case whether the actor can move left
+	case GraphObject::left :
+	{
+		// if statement checking if above the actor there isn't an earth and boulder object and current x
+		// isnt the exit point
+		if (!checkBoulder(x-1, y) && !checkEarth(x-1, y) && x != 60)
+		{
+			return true;
+		}
+	}
+	// case whether the actor can move right
+	case GraphObject::right:
+	{
+		// if statement checking if above the actor there isn't an earth and boulder object and current x
+		// isnt the exit point
+		if (!checkBoulder(x+1, y) && !checkEarth(x+1, y) && x != 60)
+		{
+			return true;
+		}
+	}
+	case GraphObject::none:
+	{
+		return false;
 	}
 	}
+	return false;
 }
+
 // queue based maze searching, exploring the oldest x,y location inserted into the queue first
 void StudentWorld::movingtoExitPoint(Protestor* pointer)
 {
@@ -141,10 +204,10 @@ void StudentWorld::movingtoExitPoint(Protestor* pointer)
 	int xcoord = pointer->getX();
 	int ycoord = pointer->getY();
 
-	queue<queueGrid> temp;
+	queue<queueGrid> temp; 
 	//mark exit point in queue array
 	temp.push(queueGrid(60, 60));
-	queueMaze[60][60] = 1;
+	queueMaze[60][60] = 1; // finish point
 
 	// removing the top point from the queue and looking in 4 directions to seee if there is a non wall space
 	while (!temp.empty())
@@ -154,8 +217,30 @@ void StudentWorld::movingtoExitPoint(Protestor* pointer)
 		int x = temp2.x;
 		int y = temp2.y;
 
+		// If slot to the east is open and undiscovered
+		if (earthArray[x + 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::right))
+		{
+			earthArray[x + 1][y] = 1 + earthArray[x][y];//mark as discovered
+			temp.push(queueGrid(x + 1, y)); // insert right location on queue
+		}
 		// If slot to the west is open and undiscovered
-		if ()
+		if (earthArray[x - 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::left))
+		{
+			earthArray[x - 1][y] = 1 + earthArray[x][y];//mark as discovered
+			temp.push(queueGrid(x - 1, y)); // insert left location on queue
+		}
+		// If slot to the south is open and undiscovered
+		if (earthArray[x][y - 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::down))
+		{
+			earthArray[x][y - 1] = 1 + earthArray[x][y];//mark as discovered
+			temp.push(queueGrid(x, y - 1)); // insert down location on queue
+		}
+		// If slot to the north is open and undiscovered
+		if (earthArray[x][y + 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::up))
+		{
+			earthArray[x][y + 1] = 1 + earthArray[x][y];//mark as discovered
+			temp.push(queueGrid(x, y + 1)); // insert up location on queue
+		}
 	}
 
 }
