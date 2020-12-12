@@ -181,38 +181,71 @@ Boulder::Boulder(StudentWorld* w, int xCoords, int yCoords)
 	setVisible(true);
 	stable = true;
 	ticks = 0;
+	falling = false;
 }
 
 void Boulder::doSomething()
 {
-	if (!isAlive())
+	if (!isAlive()) // if not alive, then return immediately 
 		return;
 	if (stable)
 	{
 		if (getWorld()->aboveOrBelowEarth(getX(), getY() - 1)) // if there is earth below boulder
-			return;
+			return; // does nothing because it cant do anything w/ earth under
 		else
-			stable = false;
+			stable = false; // changes into "waiting" state for 30 ticks
 	}
 	if (ticks == 30) // the time period before a boulder drops
 	{
 		getWorld()->playSound(SOUND_FALLING_ROCK);
-		if (getWorld()->aboveOrBelowEarth(getX(), getY() - 1) || getWorld()->checkBoulder(getX(), getY() - 4, 0))
-			isDead();
-		else
-			moveTowards(getX(), getY() - 1);
-		annoyPerson();
+		falling = true; // the boulder is now in falling state
 	}
 	ticks++;
+	if (falling) 
+	{
+		// if the boulder hits the bottom/Earth or runs into another boulder, the current boulder is dead
+		if (getWorld()->aboveOrBelowEarth(getX(), getY() - 1) || getWorld()->checkBoulder(getX(), getY() - 4, 0))
+			isDead();
+		else //otherwise, move down
+			moveTowards(getX(), getY() - 1); 
+		annoyPerson(); // we will also be checking if there is a person under 
+	}
 }
 
 void Boulder::annoyPerson()
 {
-	if (getWorld()->playerInRadius(this, 3))
-		getWorld()->getPlayer()->actorAnnoyed(100);
+	if (getWorld()->playerInRadius(this, 3)) // if a player is within radius,
+		getWorld()->getPlayer()->actorAnnoyed(100); // we increase by 100
+	Protester* p = getWorld()->protesterInRadius(this, 3); // grabs protestor within radius
+	if (p != nullptr) // if a protestor is within radius, 
+		p->actorAnnoyed(100); // we also increase by 100
+}
+
+// .............................. SQUIRT CLASS ..............................
+
+Squirt::Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir)
+	: Actor(w, TID_WATER_SPURT, xCoords, yCoords, dir, 1.0, 1)
+{
+	setVisible(true);
+	travel = 0;
+}
+
+void Squirt::doSomething()
+{
+	if (!isAlive())
+		return;
+
+}
+
+bool Squirt::hitProtestors()
+{
 	Protester* p = getWorld()->protesterInRadius(this, 3);
-	if (p != nullptr)
-		p->actorAnnoyed(100);
+	if (p == nullptr)
+		return false;
+	else
+	{
+
+	}
 }
 
 // .............................. GOODIES CLASS ..............................

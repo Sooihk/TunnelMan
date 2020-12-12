@@ -115,11 +115,24 @@ class Boulder : public Actor {
 private:
 	bool stable;
 	int ticks;
+	bool falling;
 public:
 	Boulder(StudentWorld* w, int xCoords, int yCoords);
 	virtual void doSomething();
 	void annoyPerson();
 };
+
+// .............................. SQUIRT CLASS ..............................
+
+class Squirt : public Actor {
+private:
+	int travel;
+public:
+	Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir);
+	virtual void doSomething();
+	bool hitProtestors();
+};
+
 
 // .............................. GOODIES CLASS ..............................
 
