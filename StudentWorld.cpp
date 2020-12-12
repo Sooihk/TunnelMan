@@ -10,6 +10,8 @@ GameWorld* createStudentWorld(string assetDir)
 	return new StudentWorld(assetDir);
 }
 
+// .............................. STUDENTWORLD CLASS ..............................
+
 int StudentWorld::init() // creates oil field and tunnelman
 {
 
@@ -138,4 +140,42 @@ void StudentWorld::diggingEarth() // digs earth
 		}
 	}
 }
-// Students:  Add code to this file (if you wish), StudentWorld.h, Actor.h and Actor.cpp
+
+bool StudentWorld::aboveOrBelowEarth(int x, int y)
+{
+	for (int i = x; i < x + 4; i++)
+		if (earth[i][y] != nullptr)
+			return true;
+	return false;
+}
+
+bool StudentWorld::checkBoulder(int x, int y, int radius)
+{
+	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
+		if((*it)->getID() == TID_BOULDER && inRadius(x,y,(*it)->getX(), (*it)->getY(), radius))
+			return true;
+	return false;
+}
+
+bool StudentWorld::inRadius(int x1, int x2, int y1, int y2, int radius)
+{
+	if (pow((x2 - x1), 2) + pow((y2 - y1), 2) <= radius)
+		return true;
+	return false;
+}
+
+bool StudentWorld::playerInRadius(Actor* a, int radius)
+{
+	return inRadius(a->getX(), a->getY(), tunnelPlayer->getX(), tunnelPlayer->getY(), radius);
+}
+
+Protester* StudentWorld::protesterInRadius(Actor* a, int radius)
+{
+	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
+		if (((*it)->getID() == TID_PROTESTER || (*it)->getID() == TID_HARD_CORE_PROTESTER)
+			&& inRadius(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), radius))
+		{
+			return dynamic_cast<Protester*> (*it);
+		}
+	return nullptr;
+}

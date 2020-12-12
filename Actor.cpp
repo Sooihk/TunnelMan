@@ -5,7 +5,7 @@
 #include <algorithm>
 using namespace std;
 
-// Students:  Add code to this file (if you wish), Actor.h, StudentWorld.h, and StudentWorld.cpp
+// .............................. ACTOR CLASS ..............................
 
 // constructor
 Actor::Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move,
@@ -50,6 +50,8 @@ void Actor::moveTowards(int x, int y)
 	GraphObject::moveTo(x, y);
 }
 
+// .............................. HUMAN CLASS ..............................
+
 Human::Human(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, int health)
 	:Actor(w, imageNum, xCoords, yCoords, move, 1.0, 0), human_HP(health) {}
 
@@ -61,6 +63,16 @@ int Human::getHealthPoints()
 {
 	return human_HP;
 }
+
+// .............................. EARTH CLASS ..............................
+
+Earth::Earth(StudentWorld* w, int xCoords, int yCoords) 
+	: Actor(w, TID_EARTH, xCoords, yCoords, right, 0.25, 3)
+{
+	setVisible(true);
+}
+
+// .............................. TUNNELMAN CLASS ..............................
 
 TunnelMan::TunnelMan(StudentWorld* gameWorld) : Actor(gameWorld, TID_PLAYER, 30, 60, right, 1.0, 0)
 {
@@ -147,16 +159,126 @@ void TunnelMan::doSomething()
 
 }
 
+// .............................. PROTESTER CLASS ..............................
+
 // base protestor constructor
-Protestor::Protestor(StudentWorld* gameWorld) : Actor(gameWorld, TID_PROTESTER, 60, 60, left, 1.0, 0)
+Protester::Protester(StudentWorld* gameWorld) : Actor(gameWorld, TID_PROTESTER, 60, 60, left, 1.0, 0)
 {
 	setVisible(true);
 	settingWorld(gameWorld);
 }
 
-void Protestor::doSomething()
+void Protester::doSomething()
 {
 
 }
 
-void Protestor::set
+// .............................. BOULDER CLASS ..............................
+
+Boulder::Boulder(StudentWorld* w, int xCoords, int yCoords)
+	: Actor(w, TID_BOULDER, xCoords, yCoords, down, 1.0, 1)
+{
+	setVisible(true);
+	stable = true;
+	ticks = 0;
+}
+
+void Boulder::doSomething()
+{
+	if (!isAlive())
+		return;
+	if (stable)
+	{
+		if (getWorld()->aboveOrBelowEarth(getX(), getY() - 1)) // if there is earth below boulder
+			return;
+		else
+			stable = false;
+	}
+	if (ticks == 30) // the time period before a boulder drops
+	{
+		getWorld()->playSound(SOUND_FALLING_ROCK);
+		if (getWorld()->aboveOrBelowEarth(getX(), getY() - 1) || getWorld()->checkBoulder(getX(), getY() - 4, 0))
+			isDead();
+		else
+			moveTowards(getX(), getY() - 1);
+		annoyPerson();
+	}
+	ticks++;
+}
+
+void Boulder::annoyPerson()
+{
+	if (getWorld()->playerInRadius(this, 3))
+		getWorld()->getPlayer()->actorAnnoyed(100);
+	Protester* p = getWorld()->protesterInRadius(this, 3);
+	if (p != nullptr)
+		p->actorAnnoyed(100);
+}
+
+// .............................. GOODIES CLASS ..............................
+
+Goodies::Goodies(StudentWorld* w, int imageNum, int xCoords, int yCoords)
+	: Actor(w, imageNum, xCoords, yCoords, right, 1.0, 2)
+{
+	setVisible(true);
+	pickupAble = true;
+	permanent = false;
+}
+
+
+// .............................. OIL CLASS ..............................
+
+Oil::Oil(StudentWorld* w, int xCoords, int yCoords)
+	: Goodies(w, TID_BARREL, xCoords, yCoords)
+{
+	setVisible(false);
+}
+
+void Oil::doSomething()
+{
+}
+
+// .............................. GOLD CLASS ..............................
+
+Gold::Gold(StudentWorld* w, int xCoords, int yCoords)
+	: Goodies(w, TID_GOLD, xCoords, yCoords)
+{
+	// setVisible() is dependent on the code:
+	// burried inside the Earth = invisible || dropepd by the tunnelman = visible
+
+	//pickupAble = true; DEPENDS ON THE CODE, either the protesters or tunnelman can, never both
+
+	//permanent = true; DEPENDS ON THE CODE, true = remain in the oil field, false = temp
+};
+
+void Gold::doSomething()
+{
+}
+
+// .............................. SONAR CLASS ..............................
+
+Sonar::Sonar(StudentWorld* w, int xCoords, int yCoords)
+	: Goodies(w, TID_SONAR, xCoords, yCoords)
+{
+	setVisible(true);
+	pickupAble = true; // only TunnelMan can pickup
+	permanent = false; // temporary for T = max(100, 300 – 10*current_level_number)
+};
+
+void Sonar::doSomething()
+{
+}
+
+// .............................. WATER CLASS ..............................
+
+Water::Water(StudentWorld* w, int xCoords, int yCoords)
+	: Goodies(w, TID_WATER_POOL, xCoords, yCoords)
+{
+	setVisible(true);
+	pickupAble = true; // only TunnelMan can pickup
+	permanent = false; // temporary for T = max(100, 300 – 10*current_level_number)
+}
+
+void Water::doSomething()
+{
+}
