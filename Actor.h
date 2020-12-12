@@ -6,6 +6,8 @@
 #include "StudentWorld.h"
 #include <string>
 
+// Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
+
 class StudentWorld;
 
 // .............................. ACTOR CLASS ..............................
@@ -18,15 +20,12 @@ private:
 public:
 	// constructor
 	Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth);
-
 	virtual ~Actor() {}; // destructor
 	virtual void doSomething() = 0; // doSomething function that gets overridden
 	virtual void actorAnnoyed(int health) {};
-	bool isAlive();
-	void isDead();
+	bool isAlive(); 
+	void isDead(); 
 	void moveTowards(int x, int y);
-
-
 	StudentWorld* getWorld();
 };
 
@@ -34,10 +33,10 @@ public:
 
 class Human : public Actor
 {
-private:
+private: 
 	int human_HP;
 public:
-	Human(StudentWorld * w, int imageNum, int xCoords, int yCoords, Direction move, int health);
+	Human(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, int health);
 	int getHealthPoints();
 	void decreaseHealthPoints(int damage);
 	virtual void moveTowardsDirection(Direction dir) = 0;
@@ -48,32 +47,30 @@ public:
 // .............................. EARTH CLASS ..............................
 
 class Earth : public Actor {
+private:
 public:
-	Earth(StudentWorld* w, int xCoords, int yCoords);
-	
+	Earth(StudentWorld* w, int xCoords, int yCoords); // constructor
 	virtual void doSomething() {}; // necessary to make Earth class not a abstract data class
-	virtual ~Earth() {}; // destructor
-
 };
 
 // .............................. TUNNELMAN CLASS ..............................
 
-class TunnelMan : public Actor {
+class TunnelMan : public Human
+{
 private:
-	int hitPoints = 10;
-	int water = 5;
-	int sonarCharge = 1;
-	int goldNuggets = 0;
+	int water;
+	int sonarCharge;
+	int goldNuggets;
 
 public:
 	TunnelMan(StudentWorld* gameWorld); // prototype
 
 	virtual ~TunnelMan() {}; // destructor
-
+	virtual void moveTowardsDirection(Direction dir);
 	virtual void doSomething();
+	virtual void actorAnnoyed(int damage);
 
 	// getter functions
-	int getHitPoints() { return hitPoints; }
 	int getWater() { return water; }
 	int getSonarCharge() { return sonarCharge; }
 	int getGoldNuggest() { return goldNuggets; }
@@ -82,31 +79,46 @@ public:
 
 // .............................. PROTESTER CLASS ..............................
 
-class Protester : public Actor
+
+class Protestor : public Human
 {
 public:
-	Protester(StudentWorld* gameWorld); // constructor
+	Protestor(StudentWorld* gameWorld, int imageNum, int health); // constructor
 	virtual void doSomething();
-	virtual ~Protester() {}; // destructor
+	virtual void actorAnnoyed(int health);
+	virtual void takeBribe(); 
 
-	//setters
-	void setTicksToWaitBetweenMoves(int tick) { ticksToWaitBetweenMoves = tick; }
-	void setleavetheOilField() { leavetheOilField = true; }
-	void setnumSquaresToMoveInCurrentDirection(int num) { numSquaresToMoveInCurrentDirection = num; }
-	//getters
-	int getHitPoints() { return hitPoints; }
-	int getTicksToWaitBetweenMoves() const { return ticksToWaitBetweenMoves; }
-	bool getleavetheOilField()const { return leavetheOilField; }
-	int getnumSquaresToMoveInCurrentDirection() const { return numSquaresToMoveInCurrentDirection; }
-
+	void stunLocked();
+	void pickDirectionToTurn();
+	void randomNumberMoves();
+	virtual void moveTowardsDirection(Direction dir);
+	
+	bool facingPlayer();
+	bool straightTowardsPlayer(Direction dir);
+	bool atIntersection();
+	
+	Direction directionsTowardsTunnelMan();
+	Direction randomSetDirection();
 
 private:
-	int hitPoints = 5;
-	int ticksToWaitBetweenMoves = 0;
-	bool leavetheOilField = false;
-	int numSquaresToMoveInCurrentDirection = 0;
+	bool toLeave;
+	int ticksToWaitBetweenMoves;
+	int numofSquaresMove;
+	int ticksTillYell;
+	int ticksSincePreviousTurn;
 
+};
 
+class Regular_Protestor : public Protestor
+{
+public:
+	Regular_Protestor(StudentWorld* world);
+};
+
+class Hardcore_Protestor : public Protestor
+{
+public: 
+	Hardcore_Protestor(StudentWorld* world);
 };
 
 // .............................. BOULDER CLASS ..............................
@@ -121,18 +133,6 @@ public:
 	virtual void doSomething();
 	void annoyPerson();
 };
-
-// .............................. SQUIRT CLASS ..............................
-
-class Squirt : public Actor {
-private:
-	int travel;
-public:
-	Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir);
-	virtual void doSomething();
-	bool hitProtestors();
-};
-
 
 // .............................. GOODIES CLASS ..............................
 
@@ -177,7 +177,7 @@ class Sonar : public Goodies {
 private:
 	bool pickupAble;
 	bool permanent;
-public: 
+public:
 	Sonar(StudentWorld* w, int xCoords, int yCoords);
 
 	virtual ~Sonar() {};
@@ -202,6 +202,7 @@ public:
 // Boulders: int B = min(current_level_number / 2 + 2, 9)
 // Gold Nuggets: int G = max(5-current_level_number / 2, 2)
 // Barrels of oil: int L = min(2 + current_level_number, 21)
+
 
 
 #endif // ACTOR_H_
