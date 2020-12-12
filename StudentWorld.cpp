@@ -1,7 +1,10 @@
 #include "StudentWorld.h"
-
+#include "Actor.h"
+#include "GraphObject.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <string>
-#include <vector>
 #include <algorithm>
 using namespace std;
 
@@ -12,31 +15,73 @@ GameWorld* createStudentWorld(string assetDir)
 
 // .............................. STUDENTWORLD CLASS ..............................
 
+
+StudentWorld::StudentWorld(string assetDir):GameWorld(assetDir)
+{
+	theFirstTick = true;
+	tickSincePreviousIteration = 0;
+	numberofActiveProtestors = 0;
+	tunnelPlayer = nullptr;
+	numberofBarrels = 0;
+}
+
+StudentWorld::~StudentWorld()
+{
+	cleanUp();
+}
+
+TunnelMan * StudentWorld::getPlayer()
+{
+	return tunnelPlayer;
+}
+
 int StudentWorld::init() // creates oil field and tunnelman
 {
+	// new field reset all variables
+	numberofBarrels = 0;
+	numberofActiveProtestors = 0;
+	theFirstTick = true;
+	tickSincePreviousIteration = 0;
 
-	tunnelPlayer = new TunnelMan(this); // create TunnelMan object
-
+	// create new oil field
 	for (int x = 0; x < VIEW_WIDTH; x++) // x is column
 	{
-		vector<Earth*> e;
 		for (int y = 0; y < VIEW_HEIGHT - 4; y++) // y is row
 		{
-			if (!(y >= tunnel_Ystart && y <= tunnel_Yend
-				&& x >= tunnel_Xstart && x <= tunnel_Xend))
-				// if x,y is not in spot where the initial tunnel is
+			// if x,y is not in spot where the initial tunnel is
+			if (y<4 || x>tunnel_Xend || x < tunnel_Xstart)
 			{
-				e.push_back(new Earth(this, x, y));
+				earthArray[x][y] = new Earth(this, x, y);
 			}
 		}
-		earth.push_back(e); // push vector of rows into a column
 	}
+	tunnelPlayer = new TunnelMan(this); // create tunnelman player
 
 	return GWSTATUS_CONTINUE_GAME;
 }
 
 int StudentWorld::move() // tells all actors in the current tick to doSomething()
 {
+	// updatetext do later
+
+	// Give each Actor a chance to do something
+	for (auto it : actors)
+	{
+		if(it->isAlive()) //check to see if actor is alive
+		{
+			it->doSomething();
+		}
+		if (!tunnelPlayer->isAlive()) // check if tunnelMan player is alive
+		{
+			decLives(); // decrease life of player
+			return GWSTATUS_PLAYER_DIED;
+		}
+		if (numberofBarrels == 0) // if player completed level by obtaining all the level's barrels
+		{
+			return GWSTATUS_FINISHED_LEVEL;
+		}
+
+	}
 	tunnelPlayer->doSomething(); // ask TunnelMan object to do something
 
 	return GWSTATUS_CONTINUE_GAME;
@@ -46,17 +91,15 @@ void StudentWorld::cleanUp() // delete the level
 {
 	delete tunnelPlayer; // delete TunnelMan object
 
-	// delete Earth vector array
-	for (auto it = earth.begin(); it != earth.end();)
+	// delete Earth 2d array
+	for (int x = 0; x < 64; x++)
 	{
-		for (auto it2 = (*it).begin(); it2 != (*it).end();)
+		for (int y = 0; y < 60; y++)
 		{
-			delete* it2;
-			it2 = (*it).erase(it2); // returns next element to iterator
+			delete earthArray[x][y];
 		}
-		it = earth.erase(it); // delete element and move on to next one
 	}
-
+	// delete actors in vector container
 	for (auto it = actors.begin(); it != actors.end();)
 	{
 		delete* it; // delete object pointer points to
@@ -65,86 +108,159 @@ void StudentWorld::cleanUp() // delete the level
 
 }
 
-bool StudentWorld::checkEarth(int col, int row) const // creating the initial tunnel 
+// function which removes earth object 4by4 area occupied by tunnelman, returns true if yes
+bool StudentWorld::diggingEarth(int col, int row)
 {
-	// checking to see if index contains earth
-	if ((col >= tunnel_Xstart && col <= tunnel_Xend && row >= tunnel_Ystart && row <= tunnel_Yend)
-		|| row < 0 || row > earth_Length)
+	bool destroyedEarth = false;
+	// remove earth objects from the 4by4 area occupied by the tunnelman
+	for (int i = col; i < col + 4; i++) // use nested for loop to delete 2d earthArray index
+	{
+		for (int j = row; j < row + 3; j++)
+		{
+			if (earthArray[i][j] != nullptr) // check if earth was already dugged
+			{
+				destroyedEarth = true;
+				delete earthArray[i][j];
+				earthArray[i][j] = nullptr;
+			}
+		}
+	}
+	return destroyedEarth;
+}
+
+// function which decreases number of protestors on field
+void StudentWorld::decreaseProtestor()
+{
+	numberofActiveProtestors--;
+}
+
+// function which returns true or false wherein can the actor move the desired direction without hitting a earth or boulder object
+bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Direction dir)
+{
+	// switch case returning true or false based upon actor's movement 
+	switch (dir)
+	{
+	// case whether the actor can move up
+	case GraphObject::up: 
+	{
+		// if statement checking if above the actor there isn't an earth and boulder object and current x
+		// isnt the exit point
+		if (!checkBoulder(x, y + 1) && !checkEarth(x, y + 1) && y != 60)
+		{
+			return true;
+		}
+	}
+	// case whether the actor can move down
+	case GraphObject::down:
+	{
+		// if statement checking if above the actor there isn't an earth and boulder object and current x
+		// isnt the exit point
+		if (!checkBoulder(x, y - 1) && !checkEarth(x, y - 1) && y != 60)
+		{
+			return true;
+		}
+	}
+	// case whether the actor can move left
+	case GraphObject::left :
+	{
+		// if statement checking if above the actor there isn't an earth and boulder object and current x
+		// isnt the exit point
+		if (!checkBoulder(x-1, y) && !checkEarth(x-1, y) && x != 60)
+		{
+			return true;
+		}
+	}
+	// case whether the actor can move right
+	case GraphObject::right:
+	{
+		// if statement checking if above the actor there isn't an earth and boulder object and current x
+		// isnt the exit point
+		if (!checkBoulder(x+1, y) && !checkEarth(x+1, y) && x != 60)
+		{
+			return true;
+		}
+	}
+	case GraphObject::none:
 	{
 		return false;
 	}
-	return true;
+	}
+	return false;
 }
 
-void StudentWorld::diggingEarth() // digs earth
+// queue based maze searching, exploring the oldest x,y location inserted into the queue first
+void StudentWorld::movingtoExitPoint(Protestor* pointer)
 {
-	int row = tunnelPlayer->getY(); //get current row (y-axis) where TunnelMan is
-	int column = tunnelPlayer->getX(); //get current column (x-axis) where TunnelMan is
-
-	Actor::Direction tunnelmanDir = tunnelPlayer->getDirection(); // get direction of tunnelman
-
-	switch (tunnelmanDir)
+	// populate queue based maze with 0s
+	for (int i = 0; i < 64; i++)
 	{
-	case Actor::Direction::up:
-		for (int i = 0; i < 4; i++) // digs the next four indexes in the current direction
+		for (int j = 0; j < 64; j++)
 		{
-			if (checkEarth(column + i, row + 3)) // checks if we're in the tunnel
-			{
-				if (earth[column + i][row + 3]) // checks for earth that has been dug already
-				{
-					delete earth[column + i][row + 3]; // deletes earth 3 indexes up from the original TunnelMan index 4 times
-					earth[column + i][row + 3] = nullptr;
-					playSound(SOUND_DIG);
-				}
-			}
-
-		}
-	case Actor::Direction::down:
-		for (int i = 0; i < 4; i++) // digs the next four indexes in the current direction
-		{
-			if (checkEarth(column + i, row)) // checks if we're in the tunnel
-			{
-				if (earth[column + i][row]) // checks for earth that has been dug already
-				{
-					delete earth[column + i][row]; // deletes earth from the original location down of TunnelMan index 4 times
-					earth[column + i][row] = nullptr;
-					playSound(SOUND_DIG);
-				}
-			}
-		}
-	case Actor::Direction::right:
-		for (int i = 0; i < 4; i++) // digs the next four indexes in the current direction
-		{
-			if (checkEarth(column + 3, row + i)) // checks if we're in the tunnel
-			{
-				if (earth[column + 3][row + i]) // checks for earth that has been dug already
-				{
-					delete earth[column + 3][row + i]; // deletes earth 3 indexes right from the original TunnelMan index 4 times
-					earth[column + 3][row + i] = nullptr;
-					playSound(SOUND_DIG);
-				}
-			}
-		}
-	case Actor::Direction::left:
-		for (int i = 0; i < 4; i++) // digs the next four indexes in the current direction
-		{
-			if (checkEarth(column, row + i)) // checks if we're in the tunnel
-			{
-				if (earth[column][row + i]) // checks for earth that has been dug already
-				{
-					delete earth[column][row + i]; // deletes earth from the original location left of TunnelMan index 4 times
-					earth[column][row + i] = nullptr;
-					playSound(SOUND_DIG);
-				}
-			}
+			queueMaze[i][j] = 0;
 		}
 	}
+
+	//get protestor coordinates
+	int xcoord = pointer->getX();
+	int ycoord = pointer->getY();
+
+	queue<queueGrid> temp; 
+	//mark exit point in queue array
+	temp.push(queueGrid(60, 60));
+	queueMaze[60][60] = 1; // finish point
+
+	// removing the top point from the queue and looking in 4 directions to seee if there is a non wall space
+	while (!temp.empty())
+	{
+		queueGrid temp2 = temp.front(); // front item of queue
+		temp.pop();// remove top point of queue
+		int x = temp2.x;
+		int y = temp2.y;
+
+		// If slot to the east is open and undiscovered
+		if (earthArray[x + 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::right))
+		{
+			earthArray[x + 1][y] = 1 + earthArray[x][y];//mark as discovered
+			temp.push(queueGrid(x + 1, y)); // insert right location on queue
+		}
+		// If slot to the west is open and undiscovered
+		if (earthArray[x - 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::left))
+		{
+			earthArray[x - 1][y] = 1 + earthArray[x][y];//mark as discovered
+			temp.push(queueGrid(x - 1, y)); // insert left location on queue
+		}
+		// If slot to the south is open and undiscovered
+		if (earthArray[x][y - 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::down))
+		{
+			earthArray[x][y - 1] = 1 + earthArray[x][y];//mark as discovered
+			temp.push(queueGrid(x, y - 1)); // insert down location on queue
+		}
+		// If slot to the north is open and undiscovered
+		if (earthArray[x][y + 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::up))
+		{
+			earthArray[x][y + 1] = 1 + earthArray[x][y];//mark as discovered
+			temp.push(queueGrid(x, y + 1)); // insert up location on queue
+		}
+	}
+
+}
+bool StudentWorld::checkEarth(int col, int row) // creating the initial tunnel 
+{
+	for (int i = col; i < col + 4; i++) {
+
+		for (int j = row; j < row + 4; j++) {
+
+			if (earthArray[i][j] != nullptr)
+				return true;
+		}
+	}
+	return false;
 }
 
-bool StudentWorld::aboveOrBelowEarth(int x, int y)
+bool StudentWorld::earthAbove(int x, int y)
 {
 	for (int i = x; i < x + 4; i++)
-		if (earth[i][y] != nullptr)
+		if (earthArray[i][y] != nullptr)
 			return true;
 	return false;
 }
@@ -152,7 +268,7 @@ bool StudentWorld::aboveOrBelowEarth(int x, int y)
 bool StudentWorld::checkBoulder(int x, int y, int radius)
 {
 	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
-		if((*it)->getID() == TID_BOULDER && inRadius(x,y,(*it)->getX(), (*it)->getY(), radius))
+		if ((*it)->getID() == TID_BOULDER && inRadius(x, y, (*it)->getX(), (*it)->getY(), radius))
 			return true;
 	return false;
 }
@@ -179,3 +295,4 @@ Protester* StudentWorld::protesterInRadius(Actor* a, int radius)
 		}
 	return nullptr;
 }
+// Students:  Add code to this file (if you wish), StudentWorld.h, Actor.h and Actor.cpp
