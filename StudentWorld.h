@@ -8,8 +8,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-
-// Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
+#include <cmath>
 
 const static int earth_Width = 63;
 const static int earth_Length = 59;
@@ -21,6 +20,9 @@ const static int tunnel_Yend = 59;
 class Actor;
 class TunnelMan;
 class Earth;
+class Protester;
+
+// .............................. STUDENTWORLD CLASS ..............................
 
 class StudentWorld : public GameWorld
 {
@@ -52,6 +54,18 @@ public:
 	}
 
 	bool checkEarth(int col, int row) const; // check to see if Earth is in current index
+
+	bool aboveOrBelowEarth(int x, int y); // checks the row above or below the actor
+
+	bool checkBoulder(int x, int y, int radius = 3);
+
+	bool inRadius(int x1, int x2, int y1, int y2, int radius); // check if inside the radius
+
+	bool playerInRadius(Actor* a, int radius);
+
+	Protester* protesterInRadius(Actor* a, int radius);
+
+	TunnelMan* getPlayer() { return tunnelPlayer;}
 
 private:
 	std::vector<Actor*> actors; // vector containing pointers to actor classes

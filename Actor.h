@@ -6,9 +6,9 @@
 #include "StudentWorld.h"
 #include <string>
 
-// Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
-
 class StudentWorld;
+
+// .............................. ACTOR CLASS ..............................
 
 class Actor : public GraphObject
 {
@@ -30,29 +30,33 @@ public:
 	StudentWorld* getWorld();
 };
 
+// .............................. HUMAN CLASS ..............................
+
 class Human : public Actor
 {
 private:
 	int human_HP;
 public:
-	Human(Student* w, int imageNum, int xCoords, int yCoords, Direction move, int health);
+	Human(StudentWorld * w, int imageNum, int xCoords, int yCoords, Direction move, int health);
 	int getHealthPoints();
 	void decreaseHealthPoints(int damage);
 	virtual void moveTowardsDirection(Direction dir) = 0;
-	virtual void actorAnnoyed(int health) = 0
+	virtual void actorAnnoyed(int health) = 0;
 
 };
 
+// .............................. EARTH CLASS ..............................
+
 class Earth : public Actor {
 public:
-	Earth(StudentWorld* w, int xCoords, int yCoords) : Actor(w, TID_EARTH, xCoords, yCoords, right, 0.25, 3) // constructor
-	{
-		setVisible(true);
-	};
+	Earth(StudentWorld* w, int xCoords, int yCoords);
+	
 	virtual void doSomething() {}; // necessary to make Earth class not a abstract data class
 	virtual ~Earth() {}; // destructor
 
 };
+
+// .............................. TUNNELMAN CLASS ..............................
 
 class TunnelMan : public Actor {
 private:
@@ -76,12 +80,14 @@ public:
 
 };
 
-class Protestor : public Actor
+// .............................. PROTESTER CLASS ..............................
+
+class Protester : public Actor
 {
 public:
-	Protestor(StudentWorld* gameWorld); // constructor
+	Protester(StudentWorld* gameWorld); // constructor
 	virtual void doSomething();
-	virtual ~Protestor() {}; // destructor
+	virtual ~Protester() {}; // destructor
 
 	//setters
 	void setTicksToWaitBetweenMoves(int tick) { ticksToWaitBetweenMoves = tick; }
@@ -103,49 +109,48 @@ private:
 
 };
 
+// .............................. BOULDER CLASS ..............................
+
+class Boulder : public Actor {
+private:
+	bool stable;
+	int ticks;
+public:
+	Boulder(StudentWorld* w, int xCoords, int yCoords);
+	virtual void doSomething();
+	void annoyPerson();
+};
+
+// .............................. GOODIES CLASS ..............................
+
 class Goodies : public Actor {
 private:
 	bool pickupAble; // true for tunnelman, false for protesters, or other way around
 	bool permanent; // true for permanent, false for temporary
 public:
-	Goodies(StudentWorld* w, int imageNum, int xCoords, int yCoords)
-		: Actor(w, imageNum, xCoords, yCoords, right, 1.0, 2)
-	{
-		setVisible(true);
-		pickupAble = true;
-		permanent = false;
-	}
+	Goodies(StudentWorld* w, int imageNum, int xCoords, int yCoords);
 	virtual ~Goodies() {};
 	virtual void doSomething() = 0;
 
 };
 
+// .............................. OIL CLASS ..............................
+
 class Oil : public Goodies {
 public:
-	Oil(StudentWorld* w, int xCoords, int yCoords)
-		: Goodies(w, TID_BARREL, xCoords, yCoords)
-	{
-		setVisible(false);
-	}
+	Oil(StudentWorld* w, int xCoords, int yCoords);
 
 	virtual ~Oil() {};
 
 	virtual void doSomething();
 };
 
+// .............................. GOLD CLASS ..............................
+
 class Gold : public Goodies {
 private:
 public:
-	Gold(StudentWorld* w, int xCoords, int yCoords)
-		: Goodies(w, TID_GOLD, xCoords, yCoords)
-	{
-		// setVisible() is dependent on the code:
-		// burried inside the Earth = invisible || dropepd by the tunnelman = visible
-		
-		//pickupAble = true; DEPENDS ON THE CODE, either the protesters or tunnelman can, never both
-		
-		//permanent = true; DEPENDS ON THE CODE, true = remain in the oil field, false = temp
-	};
+	Gold(StudentWorld* w, int xCoords, int yCoords);
 
 	virtual ~Gold() {};
 
@@ -153,15 +158,14 @@ public:
 
 };
 
+// .............................. SONAR CLASS ..............................
+
 class Sonar : public Goodies {
+private:
+	bool pickupAble;
+	bool permanent;
 public: 
-	Sonar(StudentWorld* w, int xCoords, int yCoords)
-		: Goodies(w, TID_SONAR, xCoords, yCoords) 
-	{
-		setVisible(true);
-		pickupAble = true; // only TunnelMan can pickup
-		permanent = false; // temporary for T = max(100, 300 – 10*current_level_number)
-	};
+	Sonar(StudentWorld* w, int xCoords, int yCoords);
 
 	virtual ~Sonar() {};
 
@@ -169,15 +173,16 @@ public:
 
 };
 
+// .............................. WATER CLASS ..............................
+
 class Water : public Goodies {
+private:
+	bool pickupAble;
+	bool permanent;
 public:
-	Water(StudentWorld* w, int xCoords, int yCoords)
-		: Goodies(w, TID_WATER_POOL, xCoords, yCoords)
-	{
-		setVisible(true);
-		pickupAble = true; // only TunnelMan can pickup
-		permanent = false; // temporary for T = max(100, 300 – 10*current_level_number)
-	}
+	Water(StudentWorld* w, int xCoords, int yCoords);
+	virtual void doSomething();
+
 };
 
 // The functions for number of boulders, gold nuggets, and barrels of oil in each level
