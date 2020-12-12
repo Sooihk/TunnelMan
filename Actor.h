@@ -134,6 +134,17 @@ public:
 	void annoyPerson();
 };
 
+// .............................. SQUIRT CLASS ..............................
+
+class Squirt : public Actor {
+private:
+	int travel;
+public:
+	Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir);
+	virtual void doSomething();
+	bool hitProtestors();
+};
+
 // .............................. GOODIES CLASS ..............................
 
 class Goodies : public Actor {
