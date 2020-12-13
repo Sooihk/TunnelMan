@@ -70,6 +70,8 @@ public:
 	virtual void doSomething();
 	virtual void actorAnnoyed(int damage);
 	void addGoodies(int goodies);
+	void shootWater(); // shoots water if there isnt earth
+	void shootWaterAux(int x, int y); // aux function for squirtWater()
 
 	// getter functions
 	int getWater() { return water; }
@@ -207,11 +209,6 @@ public:
 	virtual void doSomething();
 
 };
-
-// The functions for number of boulders, gold nuggets, and barrels of oil in each level
-// Boulders: int B = min(current_level_number / 2 + 2, 9)
-// Gold Nuggets: int G = max(5-current_level_number / 2, 2)
-// Barrels of oil: int L = min(2 + current_level_number, 21)
 
 
 

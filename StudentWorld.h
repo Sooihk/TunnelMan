@@ -51,14 +51,18 @@ public:
 	bool earthAbove(int col, int row); // checks the row above or below the actor
 	bool checkBoulder(int col, int row, int radius = 3);
 	bool canActorMoveThisDirection(int x, int y, GraphObject::Direction dir); // if actor can move in stated direction
-	// squirt 
+	bool actorsInRadius(int x, int y, int radius); // checks if actors are within the radius
 	bool inRadius(int x1, int x2, int y1, int y2, int radius); // check if inside the radius
 	bool playerInRadius(Actor* a, int radius);
-	Protestor* protesterInRadius(Actor* a, int radius);
+	bool checkGoodies(int x, int y, int radius); // looks for oil or gold near
+	
+	Protester* protesterInRadius(Actor* a, int radius);
 	TunnelMan* getPlayer();
-
-	// goodies
 	void decreaseBarrel() { numOfBarrels--; }
+	void addGameItems(int num, char letter);
+	void addGoodies();
+	void addActor(Actor* actor);
+
 	GraphObject::Direction cellphoneSignalDirection(Protestor* pointer, int M); // function giving direction where TunnelMan is to protestor within 15 moves away
 private:
 	bool theFirstTick;
