@@ -181,7 +181,7 @@ void TunnelMan::moveTowardsDirection(Direction dir)
 		if (getDirection() == left) // if TunnelMan was already facing up direction
 		{
 			if (!getWorld()->checkBoulder(getX() - 1, getY())) // check if boulder left of tunnelman
-				moveTowards(getX() - 1, getY()); // then move one block left
+moveTowards(getX() - 1, getY()); // then move one block left
 			else moveTowards(getX(), getY()); // else stay put
 		}
 		else setDirection(left); // else set TunnelMan direction to left
@@ -198,7 +198,7 @@ void TunnelMan::moveTowardsDirection(Direction dir)
 		else setDirection(right); // else set TunnelMan direction to right
 		break;
 	}
-	
+
 	case none: return;
 	}
 }
@@ -214,25 +214,44 @@ void TunnelMan::actorAnnoyed(int damage)
 	}
 }
 
+void TunnelMan::addGoodies(int idNum)
+{
+	if (idNum == TID_GOLD)
+	{
+		gold++;
+		getWorld()->increaseScore(10);
+	}
+	else if (idNum == TID_SONAR)
+	{
+		sonar++;
+		getWorld()->increaseScore(75);
+	}
+	else if (idNum == TID_WATER_POOL)
+	{
+		water += 5;
+		getWorld()->increaseScore(100);
+	}
+}
+
 // .............................. PROTESTER CLASS ..............................
 
-// base protestor constructor
-Protestor::Protestor(StudentWorld* gameWorld, int imageNum, int health) : Human(gameWorld, imageNum, 60, 60, left, health), 
+// base protester constructor
+Protester::Protester(StudentWorld* gameWorld, int imageNum, int health) : Human(gameWorld, imageNum, 60, 60, left, health),
 toLeave(false), ticksSincePreviousTurn(200), ticksTillYell(15)
 {
 	ticksToWaitBetweenMoves = max(0, 3 - (int)getWorld()->getLevel() / 4); // compute number of resting ticks
 	randomNumberMoves();
 }
 
-void Protestor::doSomething()
+void Protester::doSomething()
 {
-	// #1. check to see if protestor is currently alive, if not return
+	// #1. check to see if protester is currently alive, if not return
 	if (!isAlive)
 	{
 		return;
 	}
-	// #2 check if protestor is in rest state during current tick
-	if (ticksToWaitBetweenMoves> 0) 
+	// #2 check if protester is in rest state during current tick
+	if (ticksToWaitBetweenMoves > 0)
 	{
 		ticksToWaitBetweenMoves--;
 		return;
@@ -243,23 +262,23 @@ void Protestor::doSomething()
 		ticksTillYell++;
 		ticksSincePreviousTurn++;
 	}
-	// #3 if protestor is in a leave-the-oil-field state as hit points reached zero
+	// #3 if protester is in a leave-the-oil-field state as hit points reached zero
 	if (toLeave)
 	{
-		// if protestor is at exit point
+		// if protester is at exit point
 		if (getX() == 60 && getY() == 60)
 		{
 			isDead(); // set bool variable to false
-			getWorld()->decreaseProtestor(); // decrease number of active protestors
+			getWorld()->decreaseProtester(); // decrease number of active protesters
 			return;
 		}
-		// else protestor must move one square close to exit point
+		// else protester must move one square close to exit point
 		else
 		{
-			
+
 		}
 	}
-	
+
 }
 
 // function generating random number of squares to move in current direction
@@ -297,6 +316,27 @@ bool Protestor::protestorFacingPlayer()
 		return false;
 	}
 	return false;
+}
+
+void Protester::bribing()
+{
+	getWorld()->playSound(SOUND_PROTESTER_FOUND_GOLD);
+	if (getID() == TID_PROTESTER) // if we're working with a regular protester,
+	{
+		getWorld()->increaseScore(25); // increases the player score by 25
+		toLeave = true; // make them leave
+	}
+	else // else this is a hardcore protester
+	{
+		getWorld()->increaseScore(50); // increases the player score by 50
+		getStunned(); // protester gets stunned and sets the amount of ticks they have to wait
+	}
+}
+
+void Protester::getStunned()
+{
+	int lvl = getWorld()->getLevel();
+	ticksToWaitBetweenMoves = max(50, 100 - (lvl * 10)); // function of the amount of ticks they have to wait
 }
 
 // .............................. BOULDER CLASS ..............................
@@ -342,8 +382,8 @@ void Boulder::annoyPerson()
 {
 	if (getWorld()->playerInRadius(this, 3)) // if a player is within radius,
 		getWorld()->getPlayer()->actorAnnoyed(100); // we increase by 100
-	Protester* p = getWorld()->protesterInRadius(this, 3); // grabs protestor within radius
-	if (p != nullptr) // if a protestor is within radius, 
+	Protester* p = getWorld()->protesterInRadius(this, 3); // grabs protester within radius
+	if (p != nullptr) // if a protester is within radius, 
 		p->actorAnnoyed(100); // we also increase by 100
 } 
 
@@ -358,22 +398,74 @@ Squirt::Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir)
 
 void Squirt::doSomething()
 {
-	if (!isAlive())
+	if (!isAlive()) // if the squirt is dead, 
+		return; // return immediately
+	if (hitProtesters() || travel == 4) // if a protester is within 3 units and is in the squirt travel distance,
+	{
+		isDead(); // the squirt is put into a dead state
 		return;
+	}
 
+	switch (getDirection())
+	{
+	case up:
+		if (checkForObject(getX(), getY() + 1)) // checks for an earth or boulder directly above
+		{
+			isDead(); // squirt is put into a dead state
+			return;
+		}
+		else
+			moveTowards(getX(), getY() + 1)); // otherwise, move above one unit
+		break;
+	case down:
+		if (checkForObject(getX(), getY() - 1)) // checks for an earth or boulder directly below
+		{
+			isDead(); // squirt is put into a dead state
+			return;
+		}
+		else
+			moveTowards(getX(), getY() - 1)); // otherwise, move below one unit
+		break;
+	case left:
+		if (checkForObject(getX() - 1, getY()) // checks for an earth or boulder to the left
+		{
+			isDead(); // squirt is put into a dead state
+			return;
+		}
+		else
+			moveTowards(getX() - 1, getY())); // otherwise, move to the left one unit
+		break;
+	case right:
+		if (checkForObject(getX() + 1, getY()) // checks for an earth or boulder to the right
+		{
+			isDead(); // squirt is put into a dead state
+			return;
+		}
+		else
+			moveTowards(getX() + 1, getY())); // otherwise, move to the right one unit
+		break;
+	case none:
+		return;
+	}
+
+	travel++; // the squirt travel distance is incremented 
 }
 
-bool Squirt::hitProtestors()
+bool Squirt::checkForObject(int x, int y)
 {
-	Protester* p = getWorld()->protesterInRadius(this, 3);
-	if (p != nullptr)
-		p->actorAnnoyed(100);
-	if (p == nullptr)
-		return false;
-	else
-	{
+	return (getWorld()->checkEarth(x, y) || getWorld()->checkBoulder(x, y); // checks for earth or a boulder to the respected x and y coords
+}
 
+bool Squirt::hitProtesters()
+{
+	Protester* p = getWorld()->protesterInRadius(this, 3); // grabs a protestor within 3 units
+	if (p != nullptr) // if it is a real protesters, 
+	{
+		p->actorAnnoyed(2); // annoy for two points
+		return true;
 	}
+	else if (p == nullptr) // otherwise if there wasn't a protester
+		return false;
 }
 
 // .............................. GOODIES CLASS ..............................
@@ -382,12 +474,19 @@ Goodies::Goodies(StudentWorld* w, int imageNum, int xCoords, int yCoords)
 	: Actor(w, imageNum, xCoords, yCoords, right, 1.0, 2)
 {
 	setVisible(true);
-	pickupAble = true;
-	permanent = false;
+	tick = 0;
+}
+
+void Goodies::disappear(int t) 
+{
+	if (tick == t) // checks if the time is up; 
+		isDead(); // if so, the goodie will disappear
+	else
+		tick++; // else, just increment the ticks
 }
 
 
-// .............................. OIL CLASS ..............................
+// .............................. [BARREL] OIL CLASS ..............................
 
 Oil::Oil(StudentWorld* w, int xCoords, int yCoords)
 	: Goodies(w, TID_BARREL, xCoords, yCoords)
@@ -397,23 +496,59 @@ Oil::Oil(StudentWorld* w, int xCoords, int yCoords)
 
 void Oil::doSomething()
 {
+	if (!isAlive()) // if the oil is not currently alive,
+		return; // return immediately
+	if (!isVisible() && getWorld()->playerInRadius(this, 4)) // if not currently visible and tunnelMan is 4 away
+	{
+		setVisible(true); // make the barrel visible
+		return;
+	}
+	if (getWorld()->playerInRadius(this, 3)) // if barrel is 3 units away from tunnelMan, (and visible)
+	{
+		isDead(); // the barrel "activates" and the state is now dead
+		getWorld()->playSound(SOUND_FOUND_OIL); 
+		getWorld()->increaseScore(1000); // increases player's score by 1000
+		getWorld()->decreaseBarrel(); // barrels left is decreased; once all are picked up, level is complete
+		return;
+	}
 }
 
 // .............................. GOLD CLASS ..............................
 
-Gold::Gold(StudentWorld* w, int xCoords, int yCoords)
+Gold::Gold(StudentWorld* w, int xCoords, int yCoords, bool visible, bool dropped)
 	: Goodies(w, TID_GOLD, xCoords, yCoords)
 {
-	// setVisible() is dependent on the code:
-	// burried inside the Earth = invisible || dropepd by the tunnelman = visible
-
-	//pickupAble = true; DEPENDS ON THE CODE, either the protesters or tunnelman can, never both
-
-	//permanent = true; DEPENDS ON THE CODE, true = remain in the oil field, false = temp
+	setVisible(visible);
+	goldDropped = dropped;
 };
 
 void Gold::doSomething()
 {
+	if (!isAlive()) // if the gold is not currently alive,
+		return; // return immediately
+	if (!isVisible() && getWorld()->playerInRadius(this, 4)) // if the gold isn't visible and tunnelman is within 4 units
+	{
+		setVisible(true); // make the gold visible
+		return;
+	}
+	if (!goldDropped && getWorld()->playerInRadius(this, 3)) // if the gold is pickupable by tunnelMan and within 3 units of a tunnelman
+	{
+		int goodiesID = getID();
+		isDead(); // state is set to dead
+		getWorld()->getSound(SOUND_GOT_GOODIE); 
+		getWorld()->getPlayer()->addGoodies(goodiesID); // increase the gold by 1 and player score by 10
+		return;
+	}
+	if (goldDropped) // if gold is pickupable by protesters and within 3 units from a protester
+	{
+		Protester* p = (getWorld()->protesterInRadius(this, 3)); // grab a protester within radius of 3
+		if (p != nullptr) // as long as it is a real protester,
+		{
+			isDead(); // set the gold to a dead state
+			p->bribing(); // either stuns or gets a protester to leave
+		}
+		disappear(100); // sets the gold to disappear in 100 ticks
+	}
 }
 
 // .............................. SONAR CLASS ..............................
@@ -422,12 +557,23 @@ Sonar::Sonar(StudentWorld* w, int xCoords, int yCoords)
 	: Goodies(w, TID_SONAR, xCoords, yCoords)
 {
 	setVisible(true);
-	pickupAble = true; // only TunnelMan can pickup
-	permanent = false; // temporary for T = max(100, 300 – 10*current_level_number)
 };
 
 void Sonar::doSomething()
 {
+	if (!isAlive()) // if the sonar is not currently alive,
+		return; // return immediately
+	if (getWorld()->playerInRadius(this, 3)) // if the sonar is within 3 units from tunnelman,
+	{
+		int goodiesID = getID();
+		isDead(); // state is set to dead
+		getWorld()->getSound(SOUND_GOT_GOODIE);
+		getWorld()->getPlayer()->addGoodies(goodiesID); // increase the sonar by 1 and player score by 75
+		return;
+	}
+	int lvl = getWorld()->getLevel();
+	int T = max(100, 300 - (10 * lvl));
+	disappear(T); // sonar is always in temp state so it will be removed at the end of the tick
 }
 
 // .............................. WATER CLASS ..............................
@@ -436,10 +582,21 @@ Water::Water(StudentWorld* w, int xCoords, int yCoords)
 	: Goodies(w, TID_WATER_POOL, xCoords, yCoords)
 {
 	setVisible(true);
-	pickupAble = true; // only TunnelMan can pickup
-	permanent = false; // temporary for T = max(100, 300 – 10*current_level_number)
 }
 
 void Water::doSomething()
 {
+	if (!isAlive()) // if the water is not currently alive,
+		return; // return immediately
+	if (getWorld()->playerInRadius(this, 3)) // if the water is within 3 units from tunnelman,
+	{
+		int goodiesID = getID();
+		isDead(); // state is set to dead
+		getWorld()->getSound(SOUND_GOT_GOODIE);
+		getWorld()->getPlayer()->addGoodies(goodiesID); // increase the water by 5 and player score by 100
+		return;
+	}
+	int lvl = getWorld()->getLevel();
+	int T = max(100, 300 - (10 * lvl));
+	disappear(T); // water is always in temp state so it will be removed at the end of the tick
 }

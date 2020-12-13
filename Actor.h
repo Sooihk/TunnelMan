@@ -69,6 +69,7 @@ public:
 	virtual void moveTowardsDirection(Direction dir);
 	virtual void doSomething();
 	virtual void actorAnnoyed(int damage);
+	void addGoodies(int goodies);
 
 	// getter functions
 	int getWater() { return water; }
@@ -80,10 +81,10 @@ public:
 // .............................. PROTESTER CLASS ..............................
 
 
-class Protestor : public Human
+class Protester : public Human
 {
 public:
-	Protestor(StudentWorld* gameWorld, int imageNum, int health); // constructor
+	Protester(StudentWorld* gameWorld, int imageNum, int health); // constructor
 	virtual void doSomething();
 	virtual void actorAnnoyed(int health);
 	virtual void takeBribe(); 
@@ -92,6 +93,8 @@ public:
 	void pickDirectionToTurn();
 	void randomNumberMoves();
 	virtual void moveTowardsDirection(Direction dir);
+	void bribing();
+	void getStunned();
 	
 	bool protestorFacingPlayer();
 	bool straightTowardsPlayer(Direction dir);
@@ -109,16 +112,16 @@ private:
 
 };
 
-class Regular_Protestor : public Protestor
+class Regular_Protester : public Protester
 {
 public:
-	Regular_Protestor(StudentWorld* world);
+	Regular_Protester(StudentWorld* world);
 };
 
-class Hardcore_Protestor : public Protestor
+class Hardcore_Protester : public Protester
 {
 public: 
-	Hardcore_Protestor(StudentWorld* world);
+	Hardcore_Protester(StudentWorld* world);
 };
 
 // .............................. BOULDER CLASS ..............................
@@ -142,23 +145,24 @@ private:
 public:
 	Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir);
 	virtual void doSomething();
-	bool hitProtestors();
+	bool hitProtesters();
+	bool checkForObject(int x, int y);
 };
 
 // .............................. GOODIES CLASS ..............................
 
 class Goodies : public Actor {
 private:
-	bool pickupAble; // true for tunnelman, false for protesters, or other way around
-	bool permanent; // true for permanent, false for temporary
+	int tick;
 public:
 	Goodies(StudentWorld* w, int imageNum, int xCoords, int yCoords);
 	virtual ~Goodies() {};
 	virtual void doSomething() = 0;
+	void disappear(int t); 
 
 };
 
-// .............................. OIL CLASS ..............................
+// .............................. [BARREL] OIL CLASS ..............................
 
 class Oil : public Goodies {
 public:
@@ -173,8 +177,9 @@ public:
 
 class Gold : public Goodies {
 private:
+	bool goldDropped;
 public:
-	Gold(StudentWorld* w, int xCoords, int yCoords);
+	Gold(StudentWorld* w, int xCoords, int yCoords, bool visible, bool dropped, bool TmPickupable);
 
 	virtual ~Gold() {};
 
@@ -185,9 +190,6 @@ public:
 // .............................. SONAR CLASS ..............................
 
 class Sonar : public Goodies {
-private:
-	bool pickupAble;
-	bool permanent;
 public:
 	Sonar(StudentWorld* w, int xCoords, int yCoords);
 
@@ -200,11 +202,9 @@ public:
 // .............................. WATER CLASS ..............................
 
 class Water : public Goodies {
-private:
-	bool pickupAble;
-	bool permanent;
 public:
 	Water(StudentWorld* w, int xCoords, int yCoords);
+	virtual ~Water() {};
 	virtual void doSomething();
 
 };

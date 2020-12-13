@@ -20,9 +20,9 @@ StudentWorld::StudentWorld(string assetDir):GameWorld(assetDir)
 {
 	theFirstTick = true;
 	tickSincePreviousIteration = 0;
-	numberofActiveProtestors = 0;
+	numberofActiveProtesters = 0;
 	tunnelPlayer = nullptr;
-	numberofBarrels = 0;
+	numOfBarrels = 0;
 }
 
 StudentWorld::~StudentWorld()
@@ -38,8 +38,8 @@ TunnelMan * StudentWorld::getPlayer()
 int StudentWorld::init() // creates oil field and tunnelman
 {
 	// new field reset all variables
-	numberofBarrels = 0;
-	numberofActiveProtestors = 0;
+	numOfBarrels = 0;
+	numberofActiveProtesters = 0;
 	theFirstTick = true;
 	tickSincePreviousIteration = 0;
 
@@ -76,7 +76,7 @@ int StudentWorld::move() // tells all actors in the current tick to doSomething(
 			decLives(); // decrease life of player
 			return GWSTATUS_PLAYER_DIED;
 		}
-		if (numberofBarrels == 0) // if player completed level by obtaining all the level's barrels
+		if (numOfBarrels == 0) // if player completed level by obtaining all the level's barrels
 		{
 			return GWSTATUS_FINISHED_LEVEL;
 		}
@@ -128,10 +128,10 @@ bool StudentWorld::diggingEarth(int col, int row)
 	return destroyedEarth;
 }
 
-// function which decreases number of protestors on field
-void StudentWorld::decreaseProtestor()
+// function which decreases number of protesters on field
+void StudentWorld::decreaseProtester()
 {
-	numberofActiveProtestors--;
+	numberofActiveProtesters--;
 }
 
 // function which returns true or false wherein can the actor move the desired direction without hitting a earth or boulder object
@@ -189,7 +189,7 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 }
 
 // queue based maze searching, exploring the oldest x,y location inserted into the queue first
-void StudentWorld::movingtoExitPoint(Protestor* pointer)
+void StudentWorld::movingtoExitPoint(Protester* pointer)
 {
 	// populate queue based maze with 0s
 	for (int i = 0; i < 64; i++)
@@ -200,7 +200,7 @@ void StudentWorld::movingtoExitPoint(Protestor* pointer)
 		}
 	}
 
-	//get protestor coordinates
+	//get protester coordinates
 	int xcoord = pointer->getX();
 	int ycoord = pointer->getY();
 
