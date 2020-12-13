@@ -89,7 +89,6 @@ public:
 	virtual void actorAnnoyed(int health);
 	virtual void takeBribe(); 
 
-	void stunLocked();
 	void pickDirectionToTurn();
 	void randomNumberMoves();
 	virtual void moveTowardsDirection(Direction dir);
