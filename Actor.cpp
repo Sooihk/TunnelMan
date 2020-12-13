@@ -117,7 +117,12 @@ void TunnelMan::doSomething()
 		// 3b If user pressed spacebar, tunnelman fire a squirt
 		case KEY_PRESS_SPACE:
 		{
-
+			if (water > 0)
+			{
+				water--;
+				squirtWater();
+			}
+			break;
 		}
 		// 3cd If user pressed any of the direction keys: (left,right,down,up)
 		case KEY_PRESS_RIGHT:
@@ -140,14 +145,57 @@ void TunnelMan::doSomething()
 			moveTowardsDirection(left); // call function which moves TunnelMan towards the left
 			break;
 		}
-
-		// ADD OTHER CASES, SONAR GOLD ....
-
+		case 'z':
+		case 'Z': // using a sonar kit
+		{
+			if (sonar > 0)
+			{
+				sonar--;
+				getWorld()->checkGoodies(getX(), getY(), 12);
+			}
+			break;
 		}
-
+		case KEY_PRESS_TAB: // bribbing with gold
+		{
+			if (gold > 0)
+			{
+				gold--;
+				getWorld()->addActor(new Gold(getWorld(), getX(), getY(), true, true))
+			}
+			break;
+		}
+		}
 	}
+}
 
+void TunnelMan::squirtWater()
+{
+	switch (getDirection())
+	{
+	case up:
+		shootWaterAux(getX(), getY()+4);
+		break;
+	case down:
+		shootWaterAux(getX(), getY() - 4);
+		break;
+	case left:
+		shootWaterAux(getX() - 4, getY());
+		break;
+	case right:
+		shootWaterAux(getX() + 4, getY());
+		break;
+	case none:
+		return;
+	}
+	getWorld()->playSound(SOUND_PLAYER_SQUIRT);
+}
 
+void TunnelMan::shootWaterAux(int x, int y)
+{
+	// if theres no earth or boulder within the 4 units of whichever direction,
+	if (!getWorld()->checkEarth(x, y) && !getWorld()->checkBoulder(x, y))
+		// we will add a new squirt obj into the oil field at the 4 spaces in front
+		getWorld()->addActor(new Squirt(getWorld(), x, y, getDirection()));
 }
 
 // function which moves tunnelman towards player's chosen key direction
@@ -181,7 +229,7 @@ void TunnelMan::moveTowardsDirection(Direction dir)
 		if (getDirection() == left) // if TunnelMan was already facing up direction
 		{
 			if (!getWorld()->checkBoulder(getX() - 1, getY())) // check if boulder left of tunnelman
-moveTowards(getX() - 1, getY()); // then move one block left
+				moveTowards(getX() - 1, getY()); // then move one block left
 			else moveTowards(getX(), getY()); // else stay put
 		}
 		else setDirection(left); // else set TunnelMan direction to left

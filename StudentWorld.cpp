@@ -56,9 +56,40 @@ int StudentWorld::init() // creates oil field and tunnelman
 		}
 	}
 	tunnelPlayer = new TunnelMan(this); // create tunnelman player
+	int B = min(getLevel() / 2 + 2, 9); // boulders
+	int G = max(getLevel() / 2, 2); // gold
+	int L = min(2 + getLevel(), 21); // oil
+	addGameItems(B, 'B');
+	addGameItems(G, 'G');
+	addGameItems(L, 'L');
 
 	return GWSTATUS_CONTINUE_GAME;
 }
+
+
+//UNFINISHED
+void StudentWorld::addGameItems(int num, char letter) // addBoulderorGoldorBarrel();
+{
+	int col, row;
+	for (int i = 0; i < num; i++)
+	{
+		do {
+			col = rand() % 60 + 1;
+
+		} while (actorsInRadius(col, row, 6) || (x > 26 && x < 34 && y > 0));
+	}
+}
+
+bool StudentWorld::actorsInRadius(int x, int y, int radius)
+{
+	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
+	{
+		if (inRadius(x, y, (*it)->getX(), (*it)->getY(), radius))
+			return true;
+	}
+	return false;
+}
+
 
 int StudentWorld::move() // tells all actors in the current tick to doSomething()
 {
@@ -280,6 +311,19 @@ bool StudentWorld::inRadius(int x1, int x2, int y1, int y2, int radius)
 	return false;
 }
 
+bool StudentWorld::checkGoodies(int x, int y, int radius)
+{
+	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
+	{
+		if ((*it)->getID() == TID_BARREL || (*it)->getID() == TID_GOLD)
+		{
+			if (inRadius(x, (*it)->getX(), y, (*it)->getY(), radius))
+				(*it)->setVisible(true);
+		}
+	}
+	return false;
+}
+
 bool StudentWorld::playerInRadius(Actor* a, int radius)
 {
 	return inRadius(a->getX(), a->getY(), tunnelPlayer->getX(), tunnelPlayer->getY(), radius);
@@ -295,4 +339,27 @@ Protester* StudentWorld::protesterInRadius(Actor* a, int radius)
 		}
 	return nullptr;
 }
-// Students:  Add code to this file (if you wish), StudentWorld.h, Actor.h and Actor.cpp
+
+void StudentWorld::addGoodies()
+{
+	int col, row;
+	int G = (getLevel() * 25) + 300; // given in PDF
+	if (int(rand() % G) + 1 == 1) // 1 in G chance of spawning a sonar or water kit
+	{
+		if (int(rand() % 5) + 1 == 1) // 1 in 5 chance for a Sonar kit
+			addActor(new Sonar(this, 0, 60));
+		else // 4 in 5 chance for a Water 
+		{
+			do {
+				col = rand() & 60 + 1; // grab a random col
+				row = rand() & 60 + 1; // grab a random row
+			} while (checkEarth(col, row)); // while there is Earth in the current index
+			addActor(new Water(this, col, row));
+		}
+	}
+}
+
+void StudentWorld::addActor(Actor* actor)
+{
+	actors.push_back(actor); // adding to the vector
+}
