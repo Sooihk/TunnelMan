@@ -262,9 +262,41 @@ void Protestor::doSomething()
 	
 }
 
+// function generating random number of squares to move in current direction
 void Protestor::randomNumberMoves()
 {
-	numofSquaresMove = rand() % (61 - 8) + 8; // random number between 8 and 60 inclusive 
+	numofSquaresToMoveInCurrentDirection = rand() % (61 - 8) + 8; // random number between 8 and 60 inclusive 
+}
+
+// bool function returning true/false if protestor is facing in the direction of tunnelman
+bool Protestor::protestorFacingPlayer()
+{
+	switch (getDirection()) // get direction protestor is facing
+	{
+	case up:
+		if (getY() <= getWorld()->getPlayer()->getY()) // if protestor is facing player and above player
+		{
+			return true;
+		}
+	case right:
+		if (getX() <= getWorld()->getPlayer()->getX()) // if protestor is facing player and right of player
+		{
+			return true;
+		}
+	case down:
+		if (getY() >= getWorld()->getPlayer()->getY()) // if protestor is facing player and belwo player
+		{
+			return true;
+		}
+	case left:
+		if (getY() >= getWorld()->getPlayer()->getY()) // if protestor is facing player and left of player
+		{
+			return true;
+		}
+	case none:
+		return false;
+	}
+	return false;
 }
 
 // .............................. BOULDER CLASS ..............................

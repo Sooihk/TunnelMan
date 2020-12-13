@@ -93,7 +93,7 @@ public:
 	void randomNumberMoves();
 	virtual void moveTowardsDirection(Direction dir);
 	
-	bool facingPlayer();
+	bool protestorFacingPlayer();
 	bool straightTowardsPlayer(Direction dir);
 	bool atIntersection();
 	
@@ -103,7 +103,7 @@ public:
 private:
 	bool toLeave;
 	int ticksToWaitBetweenMoves;
-	int numofSquaresMove;
+	int numofSquaresToMoveInCurrentDirection;
 	int ticksTillYell;
 	int ticksSincePreviousTurn;
 

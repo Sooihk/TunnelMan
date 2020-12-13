@@ -205,11 +205,12 @@ void StudentWorld::movingtoExitPoint(Protestor* pointer)
 	int ycoord = pointer->getY();
 
 	queue<queueGrid> temp; 
-	//mark exit point in queue array
+	//mark starting point in queue array as the protestor exit point
 	temp.push(queueGrid(60, 60));
 	queueMaze[60][60] = 1; // finish point
 
 	// removing the top point from the queue and looking in 4 directions to seee if there is a non wall space
+	// starting point value is 1, keep adding +1 to value on each index discovered (1,2,3...)
 	while (!temp.empty())
 	{
 		queueGrid temp2 = temp.front(); // front item of queue
@@ -218,30 +219,52 @@ void StudentWorld::movingtoExitPoint(Protestor* pointer)
 		int y = temp2.y;
 
 		// If slot to the east is open and undiscovered
-		if (earthArray[x + 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::right))
+		if (queueMaze[x + 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::right))
 		{
-			earthArray[x + 1][y] = 1 + earthArray[x][y];//mark as discovered
+			queueMaze[x + 1][y] = 1 + queueMaze[x][y];//mark as discovered
 			temp.push(queueGrid(x + 1, y)); // insert right location on queue
 		}
 		// If slot to the west is open and undiscovered
-		if (earthArray[x - 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::left))
+		if (queueMaze[x - 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::left))
 		{
-			earthArray[x - 1][y] = 1 + earthArray[x][y];//mark as discovered
+			queueMaze[x - 1][y] = 1 + queueMaze[x][y];//mark as discovered
 			temp.push(queueGrid(x - 1, y)); // insert left location on queue
 		}
 		// If slot to the south is open and undiscovered
-		if (earthArray[x][y - 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::down))
+		if (queueMaze[x][y - 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::down))
 		{
-			earthArray[x][y - 1] = 1 + earthArray[x][y];//mark as discovered
+			queueMaze[x][y - 1] = 1 + queueMaze[x][y];//mark as discovered
 			temp.push(queueGrid(x, y - 1)); // insert down location on queue
 		}
 		// If slot to the north is open and undiscovered
-		if (earthArray[x][y + 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::up))
+		if (queueMaze[x][y + 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::up))
 		{
-			earthArray[x][y + 1] = 1 + earthArray[x][y];//mark as discovered
+			queueMaze[x][y + 1] = 1 + queueMaze[x][y];//mark as discovered
 			temp.push(queueGrid(x, y + 1)); // insert up location on queue
 		}
 	}
+	// if statements to retarce back to point index value 1 (exit point)
+	 // if there is no earth or boulders and queueArray value to the right is less than current
+	if (canActorMoveThisDirection(xcoord, ycoord, GraphObject::right) && queueMaze[xcoord + 1][ycoord] < queueMaze[xcoord][ycoord])
+	{
+		pointer->moveTowardsDirection(GraphObject::right); // tell actor to move towards right direction
+	}
+	// if there is no earth or boulders and queueArray value to the up is less than current
+	if (canActorMoveThisDirection(xcoord, ycoord, GraphObject::up) && queueMaze[xcoord][ycoord + 1] < queueMaze[xcoord][ycoord])
+	{
+		pointer->moveTowardsDirection(GraphObject::up); // tell actor to move towards up direction
+	}
+	// if there is no earth or boulders and queueArray value to the left is less than current
+	if (canActorMoveThisDirection(xcoord, ycoord, GraphObject::left) && queueMaze[xcoord - 1][ycoord] < queueMaze[xcoord][ycoord])
+	{
+		pointer->moveTowardsDirection(GraphObject::left); // tell actor to move towards left direction
+	}
+	// if there is no earth or boulders and queueArray value to the down is less than current
+	if (canActorMoveThisDirection(xcoord, ycoord, GraphObject::down) && queueMaze[xcoord][ycoord - 1] < queueMaze[xcoord][ycoord])
+	{
+		pointer->moveTowardsDirection(GraphObject::down); // tell actor to move towards down direction
+	}
+	return;
 
 }
 bool StudentWorld::checkEarth(int col, int row) // creating the initial tunnel 
@@ -285,13 +308,13 @@ bool StudentWorld::playerInRadius(Actor* a, int radius)
 	return inRadius(a->getX(), a->getY(), tunnelPlayer->getX(), tunnelPlayer->getY(), radius);
 }
 
-Protester* StudentWorld::protesterInRadius(Actor* a, int radius)
+Protestor* StudentWorld::protesterInRadius(Actor* a, int radius)
 {
 	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
 		if (((*it)->getID() == TID_PROTESTER || (*it)->getID() == TID_HARD_CORE_PROTESTER)
 			&& inRadius(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), radius))
 		{
-			return dynamic_cast<Protester*> (*it);
+			return dynamic_cast<Protestor*> (*it);
 		}
 	return nullptr;
 }

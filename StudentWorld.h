@@ -54,7 +54,7 @@ public:
 	// sqquirt 
 	bool inRadius(int x1, int x2, int y1, int y2, int radius); // check if inside the radius
 	bool playerInRadius(Actor* a, int radius);
-	Protester* protesterInRadius(Actor* a, int radius);
+	Protestor* protesterInRadius(Actor* a, int radius);
 	TunnelMan* getPlayer();
 private:
 	bool theFirstTick;
