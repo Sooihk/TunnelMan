@@ -22,7 +22,7 @@ const static int tunnel_Yend = 59;
 class Actor;
 class TunnelMan;
 class Earth;
-class Protestor;
+class Protester;
 
 // .............................. STUDENTWORLD CLASS ..............................
 
@@ -36,8 +36,8 @@ public:
 	virtual int move(); // ask all active actors to doSomething(), then removes any actors in the current tick
 	virtual void cleanUp(); // destroys level
 
-	void decreaseProtestor(); // function which removes a protestor who is leaving the field
-	void movingtoExitPoint(Protestor* pointer); // function which sets protestor one square closer to it's exit point
+	void decreaseProtester(); // function which removes a protester who is leaving the field
+	void movingtoExitPoint(Protester* pointer); // function which sets protester one square closer to it's exit point
 	
 
 	std::vector<Actor*> getActors() // vector container to hold pointers to actors
@@ -51,16 +51,20 @@ public:
 	bool earthAbove(int col, int row); // checks the row above or below the actor
 	bool checkBoulder(int col, int row, int radius = 3);
 	bool canActorMoveThisDirection(int x, int y, GraphObject::Direction dir); // if actor can move in stated direction
-	// sqquirt 
+	// squirt 
 	bool inRadius(int x1, int x2, int y1, int y2, int radius); // check if inside the radius
 	bool playerInRadius(Actor* a, int radius);
 	Protester* protesterInRadius(Actor* a, int radius);
 	TunnelMan* getPlayer();
+
+	// goodies
+	void decreaseBarrel() { numOfBarrels--; }
+
 private:
 	bool theFirstTick;
 	int tickSincePreviousIteration;
-	int numberofActiveProtestors; // number of protestors alive in field
-	int numberofBarrels; // number of barrels left in field
+	int numberofActiveProtesters; // number of protesters alive in field
+	int numOfBarrels; // number of barrels left in field
 
 	std::vector<Actor*> actors; // vector containing pointers to actor classes
 	TunnelMan* tunnelPlayer; // pointer to TunnelMan class
