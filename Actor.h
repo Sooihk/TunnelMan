@@ -91,14 +91,13 @@ public:
 	virtual void actorAnnoyed(int health);
 	virtual void takeBribe(); 
 
-	void stunLocked();
 	void pickDirectionToTurn();
 	void randomNumberMoves();
 	virtual void moveTowardsDirection(Direction dir);
 	void bribing();
 	void getStunned();
 	
-	bool facingPlayer();
+	bool protestorFacingPlayer();
 	bool straightTowardsPlayer(Direction dir);
 	bool atIntersection();
 	
@@ -108,7 +107,7 @@ public:
 private:
 	bool toLeave;
 	int ticksToWaitBetweenMoves;
-	int numofSquaresMove;
+	int numofSquaresToMoveInCurrentDirection;
 	int ticksTillYell;
 	int ticksSincePreviousTurn;
 

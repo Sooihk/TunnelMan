@@ -180,6 +180,7 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 		{
 			return true;
 		}
+		break;
 	}
 	// case whether the actor can move down
 	case GraphObject::down:
@@ -200,6 +201,7 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 		{
 			return true;
 		}
+		break;
 	}
 	// case whether the actor can move right
 	case GraphObject::right:
@@ -210,10 +212,12 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 		{
 			return true;
 		}
+		break;
 	}
 	case GraphObject::none:
 	{
 		return false;
+		break;
 	}
 	}
 	return false;
@@ -231,17 +235,18 @@ void StudentWorld::movingtoExitPoint(Protester* pointer)
 		}
 	}
 
-	//get protester coordinates
+	//get protestor coordinates
 	int xcoord = pointer->getX();
 	int ycoord = pointer->getY();
 
-	queue<queueGrid> temp; 
-	//mark exit point in queue array
+	queue<queueGrid> temp;
+	//mark starting point in queue array as the protestor exit point
 	temp.push(queueGrid(60, 60));
 	queueMaze[60][60] = 1; // finish point
 
 	// removing the top point from the queue and looking in 4 directions to seee if there is a non wall space
-	while (!temp.empty())
+	// starting point value is 1, keep adding +1 to value on each index discovered (1,2,3...)
+	while (!temp.empty()) // loop until queue is empty
 	{
 		queueGrid temp2 = temp.front(); // front item of queue
 		temp.pop();// remove top point of queue
@@ -249,31 +254,54 @@ void StudentWorld::movingtoExitPoint(Protester* pointer)
 		int y = temp2.y;
 
 		// If slot to the east is open and undiscovered
-		if (earthArray[x + 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::right))
+		if (queueMaze[x + 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::right))
 		{
-			earthArray[x + 1][y] = 1 + earthArray[x][y];//mark as discovered
+			queueMaze[x + 1][y] = 1 + queueMaze[x][y];//mark as discovered
 			temp.push(queueGrid(x + 1, y)); // insert right location on queue
 		}
 		// If slot to the west is open and undiscovered
-		if (earthArray[x - 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::left))
+		if (queueMaze[x - 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::left))
 		{
-			earthArray[x - 1][y] = 1 + earthArray[x][y];//mark as discovered
+			queueMaze[x - 1][y] = 1 + queueMaze[x][y];//mark as discovered
 			temp.push(queueGrid(x - 1, y)); // insert left location on queue
 		}
 		// If slot to the south is open and undiscovered
-		if (earthArray[x][y - 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::down))
+		if (queueMaze[x][y - 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::down))
 		{
-			earthArray[x][y - 1] = 1 + earthArray[x][y];//mark as discovered
+			queueMaze[x][y - 1] = 1 + queueMaze[x][y];//mark as discovered
 			temp.push(queueGrid(x, y - 1)); // insert down location on queue
 		}
 		// If slot to the north is open and undiscovered
-		if (earthArray[x][y + 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::up))
+		if (queueMaze[x][y + 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::up))
 		{
-			earthArray[x][y + 1] = 1 + earthArray[x][y];//mark as discovered
+			queueMaze[x][y + 1] = 1 + queueMaze[x][y];//mark as discovered
 			temp.push(queueGrid(x, y + 1)); // insert up location on queue
 		}
+
 	}
 
+	// if statements to retarce back to point index value 1 (exit point)
+	 // if there is no earth or boulders and queueArray value to the right is less than current
+	if (canActorMoveThisDirection(xcoord, ycoord, GraphObject::right) && queueMaze[xcoord + 1][ycoord] < queueMaze[xcoord][ycoord])
+	{
+		pointer->moveTowardsDirection(GraphObject::right); // tell actor to move towards right direction
+	}
+	// if there is no earth or boulders and queueArray value to the up is less than current
+	if (canActorMoveThisDirection(xcoord, ycoord, GraphObject::up) && queueMaze[xcoord][ycoord + 1] < queueMaze[xcoord][ycoord])
+	{
+		pointer->moveTowardsDirection(GraphObject::up); // tell actor to move towards up direction
+	}
+	// if there is no earth or boulders and queueArray value to the left is less than current
+	if (canActorMoveThisDirection(xcoord, ycoord, GraphObject::left) && queueMaze[xcoord - 1][ycoord] < queueMaze[xcoord][ycoord])
+	{
+		pointer->moveTowardsDirection(GraphObject::left); // tell actor to move towards left direction
+	}
+	// if there is no earth or boulders and queueArray value to the down is less than current
+	if (canActorMoveThisDirection(xcoord, ycoord, GraphObject::down) && queueMaze[xcoord][ycoord - 1] < queueMaze[xcoord][ycoord])
+	{
+		pointer->moveTowardsDirection(GraphObject::down); // tell actor to move towards down direction
+	}
+	return;
 }
 bool StudentWorld::checkEarth(int col, int row) // creating the initial tunnel 
 {
@@ -304,6 +332,93 @@ bool StudentWorld::checkBoulder(int x, int y, int radius)
 	return false;
 }
 
+// function telling which direction protestor to move if tunnelman cellphone signal within 15 moves away
+GraphObject::Direction StudentWorld::cellphoneSignalDirection(Protestor* pointer, int M)
+{
+	// use queue-based maze searching algorithm 
+	// populate queue based maze with 0s
+	for (int i = 0; i < 64; i++)
+	{
+		for (int j = 0; j < 64; j++)
+		{
+			queueMaze[i][j] = 0;
+		}
+	}
+
+	//get protestor coordinates
+	int xcoord = pointer->getX();
+	int ycoord = pointer->getY();
+
+	queue<queueGrid> temp;
+	//mark starting point in queue array as TunnelMan's current location 
+	int playerX = getPlayer()->getX();
+	int playerY = getPlayer()->getY();
+	temp.push(queueGrid(playerX, playerY)); // initialize queue with start index
+	queueMaze[playerX][playerY] = 1; // mark start point
+
+	// removing the top point from the queue and looking in 4 directions to seee if there is a non wall space
+	// starting point value is 1, keep adding +1 to value on each index discovered (1,2,3...)
+	while (!temp.empty()) // loop until queue is empty
+	{
+		queueGrid temp2 = temp.front(); // front item of queue
+		temp.pop();// remove top point of queue
+		int x = temp2.x;
+		int y = temp2.y;
+
+		// If slot to the EAST is open and undiscovered
+		if (queueMaze[x + 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::right))
+		{
+			queueMaze[x + 1][y] = 1 + queueMaze[x][y];//mark as discovered
+			temp.push(queueGrid(x + 1, y)); // insert right location on queue
+		}
+		// If slot to the WEST is open and undiscovered
+		if (queueMaze[x - 1][y] == 0 && canActorMoveThisDirection(x, y, GraphObject::left))
+		{
+			queueMaze[x - 1][y] = 1 + queueMaze[x][y];//mark as discovered
+			temp.push(queueGrid(x - 1, y)); // insert left location on queue
+		}
+		// If slot to the SOUTH is open and undiscovered
+		if (queueMaze[x][y - 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::down))
+		{
+			queueMaze[x][y - 1] = 1 + queueMaze[x][y];//mark as discovered
+			temp.push(queueGrid(x, y - 1)); // insert down location on queue
+		}
+		// If slot to the NORTH is open and undiscovered
+		if (queueMaze[x][y + 1] == 0 && canActorMoveThisDirection(x, y, GraphObject::up))
+		{
+			queueMaze[x][y + 1] = 1 + queueMaze[x][y];//mark as discovered
+			temp.push(queueGrid(x, y + 1)); // insert up location on queue
+		}
+	}
+
+	// if statements to retarce back to point index value 1 (where TunnelMan is)
+	// if there is no earth or boulders and queueArray value to the right is less than current
+	if (M + 1 >= queueMaze[xcoord][ycoord]) // using the queueMaze numbering, if the value where TunnelMan is within <= 15+1, then can detect cellphone signal
+	{
+		if (queueMaze[xcoord + 1][ycoord] < queueMaze[xcoord][ycoord] && canActorMoveThisDirection(xcoord, ycoord, GraphObject::right))
+		{
+			return GraphObject::right; // tell actor to move towards right direction
+		}
+		// if there is no earth or boulders and queueArray value to the up is less than current
+		if (queueMaze[xcoord][ycoord + 1] < queueMaze[xcoord][ycoord] && canActorMoveThisDirection(xcoord, ycoord, GraphObject::up))
+		{
+			return GraphObject::up; // tell actor to move towards up direction
+		}
+		// if there is no earth or boulders and queueArray value to the left is less than current
+		if (queueMaze[xcoord - 1][ycoord] < queueMaze[xcoord][ycoord] && canActorMoveThisDirection(xcoord, ycoord, GraphObject::left))
+		{
+			return GraphObject::left; // tell actor to move towards left direction
+		}
+		// if there is no earth or boulders and queueArray value to the down is less than current
+		if (queueMaze[xcoord][ycoord - 1] < queueMaze[xcoord][ycoord] && canActorMoveThisDirection(xcoord, ycoord, GraphObject::down))
+		{
+			return GraphObject::down; // tell actor to move towards down direction
+		}
+	}
+	//  else
+	return GraphObject::none;
+}
+
 bool StudentWorld::inRadius(int x1, int x2, int y1, int y2, int radius)
 {
 	if (pow((x2 - x1), 2) + pow((y2 - y1), 2) <= radius)
@@ -329,13 +444,13 @@ bool StudentWorld::playerInRadius(Actor* a, int radius)
 	return inRadius(a->getX(), a->getY(), tunnelPlayer->getX(), tunnelPlayer->getY(), radius);
 }
 
-Protester* StudentWorld::protesterInRadius(Actor* a, int radius)
+Protestor* StudentWorld::protesterInRadius(Actor* a, int radius)
 {
 	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
 		if (((*it)->getID() == TID_PROTESTER || (*it)->getID() == TID_HARD_CORE_PROTESTER)
 			&& inRadius(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), radius))
 		{
-			return dynamic_cast<Protester*> (*it);
+			return dynamic_cast<Protestor*> (*it);
 		}
 	return nullptr;
 }

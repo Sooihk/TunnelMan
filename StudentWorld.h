@@ -63,6 +63,7 @@ public:
 	void addGoodies();
 	void addActor(Actor* actor);
 
+	GraphObject::Direction cellphoneSignalDirection(Protestor* pointer, int M); // function giving direction where TunnelMan is to protestor within 15 moves away
 private:
 	bool theFirstTick;
 	int tickSincePreviousIteration;
