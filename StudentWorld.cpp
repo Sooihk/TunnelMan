@@ -16,7 +16,7 @@ GameWorld* createStudentWorld(string assetDir)
 // .............................. STUDENTWORLD CLASS ..............................
 
 
-StudentWorld::StudentWorld(string assetDir):GameWorld(assetDir)
+StudentWorld::StudentWorld(string assetDir) : GameWorld(assetDir)
 {
 	theFirstTick = true;
 	tickSincePreviousIteration = 0;
@@ -56,9 +56,9 @@ int StudentWorld::init() // creates oil field and tunnelman
 		}
 	}
 	tunnelPlayer = new TunnelMan(this); // create tunnelman player
-	int B = min(getLevel() / 2 + 2, 9); // boulders
-	int G = max(getLevel() / 2, 2); // gold
-	int L = min(2 + getLevel(), 21); // oil
+	int B = min((int)getLevel() / 2 + 2, 9); // boulders
+	int G = max((int)getLevel() / 2, 2); // gold
+	int L = min(2 + (int)getLevel(), 21); // oil
 	addGameItems(B, 'B');
 	addGameItems(G, 'G');
 	addGameItems(L, 'L');
@@ -333,7 +333,7 @@ bool StudentWorld::checkBoulder(int x, int y, int radius)
 }
 
 // function telling which direction protestor to move if tunnelman cellphone signal within 15 moves away
-GraphObject::Direction StudentWorld::cellphoneSignalDirection(Protestor* pointer, int M)
+GraphObject::Direction StudentWorld::cellphoneSignalDirection(Protester* pointer, int M)
 {
 	// use queue-based maze searching algorithm 
 	// populate queue based maze with 0s

@@ -120,7 +120,7 @@ void TunnelMan::doSomething()
 			if (water > 0)
 			{
 				water--;
-				squirtWater();
+				shootWater();
 			}
 			break;
 		}
@@ -148,19 +148,19 @@ void TunnelMan::doSomething()
 		case 'z':
 		case 'Z': // using a sonar kit
 		{
-			if (sonar > 0)
+			if (sonarCharge > 0)
 			{
-				sonar--;
+				sonarCharge--;
 				getWorld()->checkGoodies(getX(), getY(), 12);
 			}
 			break;
 		}
 		case KEY_PRESS_TAB: // bribbing with gold
 		{
-			if (gold > 0)
+			if (goldNuggets > 0)
 			{
-				gold--;
-				getWorld()->addActor(new Gold(getWorld(), getX(), getY(), true, true))
+				goldNuggets--;
+				getWorld()->addActor(new Gold(getWorld(), getX(), getY(), true, true));
 			}
 			break;
 		}
@@ -168,7 +168,7 @@ void TunnelMan::doSomething()
 	}
 }
 
-void TunnelMan::squirtWater()
+void TunnelMan::shootWater()
 {
 	switch (getDirection())
 	{
@@ -326,7 +326,7 @@ toLeave(false), ticksSincePreviousTurn(200), ticksTillYell(15)
 void Protestor::doSomething()
 {
 	// #1. check to see if protestor is currently alive, if not return
-	if (!isAlive)
+	if (!isAlive())
 	{
 		return;
 	}

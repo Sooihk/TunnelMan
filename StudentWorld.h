@@ -29,7 +29,7 @@ class Protester;
 class StudentWorld : public GameWorld
 {
 public:
-	StudentWorld(std::string assetDir) : GameWorld(assetDir); // constructor
+	StudentWorld(std::string assetDir); // constructor
 	virtual ~StudentWorld(); // destructor
 
 	virtual int init(); // creates a new oil field and new set of actors
