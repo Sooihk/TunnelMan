@@ -366,22 +366,74 @@ Squirt::Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir)
 
 void Squirt::doSomething()
 {
-	if (!isAlive())
+	if (!isAlive()) // if the squirt is dead, 
+		return; // return immediately
+	if (hitProtesters() || travel == 4) // if a protester is within 3 units and is in the squirt travel distance,
+	{
+		isDead(); // the squirt is put into a dead state
 		return;
+	}
 
+	switch (getDirection())
+	{
+	case up:
+		if (checkForObject(getX(), getY() + 1)) // checks for an earth or boulder directly above
+		{
+			isDead(); // squirt is put into a dead state
+			return;
+		}
+		else
+			moveTowards(getX(), getY() + 1)); // otherwise, move above one unit
+		break;
+	case down:
+		if (checkForObject(getX(), getY() - 1)) // checks for an earth or boulder directly below
+		{
+			isDead(); // squirt is put into a dead state
+			return;
+		}
+		else
+			moveTowards(getX(), getY() - 1)); // otherwise, move below one unit
+		break;
+	case left:
+		if (checkForObject(getX() - 1, getY()) // checks for an earth or boulder to the left
+		{
+			isDead(); // squirt is put into a dead state
+			return;
+		}
+		else
+			moveTowards(getX() - 1, getY())); // otherwise, move to the left one unit
+		break;
+	case right:
+		if (checkForObject(getX() + 1, getY()) // checks for an earth or boulder to the right
+		{
+			isDead(); // squirt is put into a dead state
+			return;
+		}
+		else
+			moveTowards(getX() + 1, getY())); // otherwise, move to the right one unit
+		break;
+	case none:
+		return;
+	}
+
+	travel++; // the squirt travel distance is incremented 
+}
+
+bool Squirt::checkForObject(int x, int y)
+{
+	return (getWorld()->checkEarth(x, y) || getWorld()->checkBoulder(x, y); // checks for earth or a boulder to the respected x and y coords
 }
 
 bool Squirt::hitProtesters()
 {
-	Protester* p = getWorld()->protesterInRadius(this, 3);
-	if (p != nullptr)
-		p->actorAnnoyed(100);
-	if (p == nullptr)
-		return false;
-	else
+	Protester* p = getWorld()->protesterInRadius(this, 3); // grabs a protestor within 3 units
+	if (p != nullptr) // if it is a real protesters, 
 	{
-
+		p->actorAnnoyed(2); // annoy for two points
+		return true;
 	}
+	else if (p == nullptr) // otherwise if there wasn't a protester
+		return false;
 }
 
 // .............................. GOODIES CLASS ..............................

@@ -146,6 +146,7 @@ public:
 	Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir);
 	virtual void doSomething();
 	bool hitProtesters();
+	bool checkForObject(int x, int y);
 };
 
 // .............................. GOODIES CLASS ..............................
