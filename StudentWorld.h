@@ -52,7 +52,7 @@ public:
 	bool checkBoulder(int col, int row, int radius = 3);
 	bool canActorMoveThisDirection(int x, int y, GraphObject::Direction dir); // if actor can move in stated direction
 	bool actorsInRadius(int x, int y, int radius); // checks if actors are within the radius
-	bool inRadius(int x1, int x2, int y1, int y2, int radius); // check if inside the radius
+	bool inRadiusAux(int x1, int x2, int y1, int y2, int radius); // check if inside the radius
 	bool playerInRadius(Actor* a, int radius);
 	bool checkGoodies(int x, int y, int radius); // looks for oil or gold near
 	

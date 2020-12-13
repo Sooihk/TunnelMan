@@ -58,25 +58,38 @@ int StudentWorld::init() // creates oil field and tunnelman
 	tunnelPlayer = new TunnelMan(this); // create tunnelman player
 	int B = min((int)getLevel() / 2 + 2, 9); // boulders
 	int G = max((int)getLevel() / 2, 2); // gold
-	int L = min(2 + (int)getLevel(), 21); // oil
+	int O = min(2 + (int)getLevel(), 21); // oil
 	addGameItems(B, 'B');
 	addGameItems(G, 'G');
-	addGameItems(L, 'L');
+	addGameItems(O, 'O');
 
 	return GWSTATUS_CONTINUE_GAME;
 }
 
-
-//UNFINISHED
 void StudentWorld::addGameItems(int num, char letter) // addBoulderorGoldorBarrel();
 {
 	int col, row;
 	for (int i = 0; i < num; i++)
 	{
 		do {
-			col = rand() % 60 + 1;
-
-		} while (actorsInRadius(col, row, 6) || (x > 26 && x < 34 && y > 0));
+			col = rand() % 60 + 1; // grab a random x value
+			if (letter == 'B')
+				// Boulders must be distributed between x=0,y=20 and x=60,y=56, inclusive
+				y = rand() % 36 + 1 + 20;
+			else
+				// gold and oil must be distributed between x = 0, y = 0 and x = 60, y = 56 inclusive
+				y = rand() % 56 + 1;
+		} while (actorsInRadius(col, row, 6) || (x > 26 && x < 34 && y > 0)); // checking for within range
+		switch(letter)
+			case 'B':
+				addActor(new Boulder(this, row, col));
+				break;
+			case 'G':
+				addActor(new Gold(this, row, col, false, false));
+				break;
+			case 'O':
+				addActor(new Oil(this, row, col));
+				break;
 	}
 }
 
@@ -84,7 +97,7 @@ bool StudentWorld::actorsInRadius(int x, int y, int radius)
 {
 	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
 	{
-		if (inRadius(x, y, (*it)->getX(), (*it)->getY(), radius))
+		if (inRadiusAux(x, y, (*it)->getX(), (*it)->getY(), radius))
 			return true;
 	}
 	return false;
@@ -327,7 +340,7 @@ bool StudentWorld::earthAbove(int x, int y)
 bool StudentWorld::checkBoulder(int x, int y, int radius)
 {
 	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
-		if ((*it)->getID() == TID_BOULDER && inRadius(x, y, (*it)->getX(), (*it)->getY(), radius))
+		if ((*it)->getID() == TID_BOULDER && inRadiusAux(x, y, (*it)->getX(), (*it)->getY(), radius))
 			return true;
 	return false;
 }
@@ -419,7 +432,7 @@ GraphObject::Direction StudentWorld::cellphoneSignalDirection(Protester* pointer
 	return GraphObject::none;
 }
 
-bool StudentWorld::inRadius(int x1, int x2, int y1, int y2, int radius)
+bool StudentWorld::inRadiusAux(int x1, int x2, int y1, int y2, int radius)
 {
 	if (pow((x2 - x1), 2) + pow((y2 - y1), 2) <= radius)
 		return true;
@@ -432,7 +445,7 @@ bool StudentWorld::checkGoodies(int x, int y, int radius)
 	{
 		if ((*it)->getID() == TID_BARREL || (*it)->getID() == TID_GOLD)
 		{
-			if (inRadius(x, (*it)->getX(), y, (*it)->getY(), radius))
+			if (inRadiusAux(x, (*it)->getX(), y, (*it)->getY(), radius))
 				(*it)->setVisible(true);
 		}
 	}
@@ -441,14 +454,14 @@ bool StudentWorld::checkGoodies(int x, int y, int radius)
 
 bool StudentWorld::playerInRadius(Actor* a, int radius)
 {
-	return inRadius(a->getX(), a->getY(), tunnelPlayer->getX(), tunnelPlayer->getY(), radius);
+	return inRadiusAux(a->getX(), a->getY(), tunnelPlayer->getX(), tunnelPlayer->getY(), radius);
 }
 
 Protestor* StudentWorld::protesterInRadius(Actor* a, int radius)
 {
 	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
 		if (((*it)->getID() == TID_PROTESTER || (*it)->getID() == TID_HARD_CORE_PROTESTER)
-			&& inRadius(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), radius))
+			&& inRadiusAux(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), radius))
 		{
 			return dynamic_cast<Protestor*> (*it);
 		}

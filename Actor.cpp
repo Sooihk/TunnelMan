@@ -148,19 +148,19 @@ void TunnelMan::doSomething()
 		case 'z':
 		case 'Z': // using a sonar kit
 		{
-			if (sonarCharge > 0)
+			if (sonarCharge > 0) // as long as they have one or more sonar charges,
 			{
 				sonarCharge--;
-				getWorld()->checkGoodies(getX(), getY(), 12);
+				getWorld()->checkGoodies(getX(), getY(), 12); // check for oil/gold within a radius of 12 units
 			}
 			break;
 		}
 		case KEY_PRESS_TAB: // bribbing with gold
 		{
-			if (goldNuggets > 0)
+			if (goldNuggets > 0) // as long as they have one or more gold, 
 			{
 				goldNuggets--;
-				getWorld()->addActor(new Gold(getWorld(), getX(), getY(), true, true));
+				getWorld()->addActor(new Gold(getWorld(), getX(), getY(), true, true)); // a new gold will be put into the oil field
 			}
 			break;
 		}
@@ -299,17 +299,17 @@ void TunnelMan::addGoodies(int idNum)
 	if (idNum == TID_GOLD)
 	{
 		gold++;
-		getWorld()->increaseScore(10);
+		getWorld()->increaseScore(10); // gold increases score by 10
 	}
 	else if (idNum == TID_SONAR)
 	{
 		sonar++;
-		getWorld()->increaseScore(75);
+		getWorld()->increaseScore(75); // sonar increases score by 75
 	}
 	else if (idNum == TID_WATER_POOL)
 	{
 		water += 5;
-		getWorld()->increaseScore(100);
+		getWorld()->increaseScore(100); // water increases score by 100
 	}
 }
 
