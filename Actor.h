@@ -20,12 +20,12 @@ private:
 public:
 	// constructor
 	Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth);
-	virtual ~Actor() {}; // destructor
+	virtual ~Actor(); // destructor
 	virtual void doSomething() = 0; // doSomething function that gets overridden
 	virtual void actorAnnoyed(int health) {};
-	bool isAlive(); 
-	void isDead(); 
-	void moveTowards(int x, int y);
+	bool isAlive(); // to return whether actor is alive or dead
+	void isDead(); // set actor to dead
+	void moveTowards(int x, int y); // move actor to desired location
 	StudentWorld* getWorld();
 };
 
@@ -33,7 +33,7 @@ public:
 
 class Human : public Actor
 {
-private: 
+private:
 	int human_HP;
 public:
 	Human(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, int health);
@@ -50,7 +50,7 @@ class Earth : public Actor {
 private:
 public:
 	Earth(StudentWorld* w, int xCoords, int yCoords); // constructor
-	virtual void doSomething() {}; // necessary to make Earth class not a abstract data class
+	virtual void doSomething(); // necessary to make Earth class not a abstract data class
 };
 
 // .............................. TUNNELMAN CLASS ..............................
@@ -64,45 +64,41 @@ private:
 
 public:
 	TunnelMan(StudentWorld* gameWorld); // prototype
-
-	virtual ~TunnelMan() {}; // destructor
-	virtual void moveTowardsDirection(Direction dir);
+	virtual void moveTowardsDirection(Direction dir); // move TunnelMan towards that direction
 	virtual void doSomething();
 	virtual void actorAnnoyed(int damage);
-	void addGoodies(int goodies);
+	void addGoodies(int goodies); // increase sonar or water or gold count and increase score
 	void shootWater(); // shoots water if there isnt earth
 	void shootWaterAux(int x, int y); // aux function for squirtWater()
 
 	// getter functions
 	int getWater() { return water; }
 	int getSonarCharge() { return sonarCharge; }
-	int getGoldNuggest() { return goldNuggets; }
-
+	int getGoldNugget() { return goldNuggets; }
 };
 
 // .............................. PROTESTER CLASS ..............................
 
 
-class Protester : public Human
+class Protestor : public Human
 {
 public:
-	Protester(StudentWorld* gameWorld, int imageNum, int health); // constructor
+	Protestor(StudentWorld* gameWorld, int imageNum, int health); // constructor
 	virtual void doSomething();
 	virtual void actorAnnoyed(int health);
-	virtual void takeBribe(); 
 
 	void pickDirectionToTurn();
 	void randomNumberMoves();
 	virtual void moveTowardsDirection(Direction dir);
 	void bribing();
 	void getStunned();
-	
-	bool protestorFacingPlayer();
-	bool straightTowardsPlayer(Direction dir);
-	bool atIntersection();
-	
-	Direction directionsTowardsTunnelMan();
-	Direction randomSetDirection();
+
+	bool protestorFacingTunnelMan();
+	bool straightTowardsTunnelMan(Direction dir);
+	bool protestoratIntersection();
+
+	Direction directionTowardsTunnelMan();
+	Direction randomNewDirection();
 
 private:
 	bool toLeave;
@@ -113,25 +109,26 @@ private:
 
 };
 
-class Regular_Protester : public Protester
+class Regular_Protestor : public Protestor
 {
 public:
-	Regular_Protester(StudentWorld* world);
+	Regular_Protestor(StudentWorld* world);
 };
 
-class Hardcore_Protester : public Protester
+class Hardcore_Protestor : public Protestor
 {
-public: 
-	Hardcore_Protester(StudentWorld* world);
+public:
+	Hardcore_Protestor(StudentWorld* world);
 };
 
 // .............................. BOULDER CLASS ..............................
 
-class Boulder : public Actor {
+class Boulder : public Actor
+{
 private:
-	bool stable;
+	bool currentlyStable;
 	int ticks;
-	bool falling;
+	bool fallingDown;
 public:
 	Boulder(StudentWorld* w, int xCoords, int yCoords);
 	virtual void doSomething();
@@ -140,11 +137,13 @@ public:
 
 // .............................. SQUIRT CLASS ..............................
 
-class Squirt : public Actor {
+class Squirt : public Actor
+{
 private:
 	int travel;
 public:
 	Squirt(StudentWorld* w, int xCoords, int yCoords, Direction dir);
+	virtual ~Squirt() {};
 	virtual void doSomething();
 	bool hitProtesters();
 	bool checkForObject(int x, int y);
@@ -152,35 +151,36 @@ public:
 
 // .............................. GOODIES CLASS ..............................
 
-class Goodies : public Actor {
+class Goodies : public Actor
+{
 private:
 	int tick;
 public:
 	Goodies(StudentWorld* w, int imageNum, int xCoords, int yCoords);
 	virtual ~Goodies() {};
 	virtual void doSomething() = 0;
-	void disappear(int t); 
+	void disappear(int t);
 
 };
 
 // .............................. [BARREL] OIL CLASS ..............................
 
-class Oil : public Goodies {
+class Oil : public Goodies
+{
 public:
 	Oil(StudentWorld* w, int xCoords, int yCoords);
-
 	virtual ~Oil() {};
-
 	virtual void doSomething();
 };
 
 // .............................. GOLD CLASS ..............................
 
-class Gold : public Goodies {
+class Gold : public Goodies
+{
 private:
 	bool goldDropped;
 public:
-	Gold(StudentWorld* w, int xCoords, int yCoords, bool visible, bool dropped, bool TmPickupable);
+	Gold(StudentWorld* w, int xCoords, int yCoords, bool visible, bool dropped);
 
 	virtual ~Gold() {};
 
@@ -189,8 +189,8 @@ public:
 };
 
 // .............................. SONAR CLASS ..............................
-
-class Sonar : public Goodies {
+class Sonar : public Goodies
+{
 public:
 	Sonar(StudentWorld* w, int xCoords, int yCoords);
 
@@ -209,7 +209,6 @@ public:
 	virtual void doSomething();
 
 };
-
 
 
 #endif // ACTOR_H_
