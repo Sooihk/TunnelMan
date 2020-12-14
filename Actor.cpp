@@ -1,7 +1,6 @@
 #include "Actor.h"
 #include "StudentWorld.h"
-#include <vector>
-#include <string>
+#include "GraphObject.h"
 #include <algorithm>
 using namespace std;
 
@@ -23,10 +22,7 @@ StudentWorld* Actor::getWorld()
 {
 	return newWorld;
 }
-Actor::~Actor()
-{
-	setVisible(false);
-}
+
 void Actor::isDead()
 {
 	actorAlive = false;
@@ -53,7 +49,6 @@ void Actor::moveTowards(int x, int y)
 }
 
 // .............................. HUMAN CLASS ..............................
-
 
 Human::Human(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, int health) :Actor(w, imageNum, xCoords, yCoords, move, 1.0, 0)
 {
@@ -329,11 +324,13 @@ void TunnelMan::actorAnnoyed(int damage)
 // .............................. PROTESTER CLASS ..............................
 
 // base protestor constructor
-Protestor::Protestor(StudentWorld* gameWorld, int imageNum, int health) : Human(gameWorld, imageNum, 60, 60, left, health),
-toLeave(false), ticksSincePreviousTurn(200), ticksTillYell(15)
+Protestor::Protestor(StudentWorld* gameWorld, int imageNum, int health) : Human(gameWorld, imageNum, 60, 60, left, health)
 {
-	ticksToWaitBetweenMoves = max(0, 3 - (int)getWorld()->getLevel() / 4); // compute number of resting ticks
+	toLeave = false;
+	ticksSincePreviousTurn = 200;
+	ticksTillYell = 15;
 	randomNumberMoves();
+	ticksToWaitBetweenMoves = max(0, 3 - (int)getWorld()->getLevel() / 4); // compute number of resting ticks
 }
 
 void Protestor::doSomething()
@@ -365,12 +362,8 @@ void Protestor::doSomething()
 			getWorld()->decreaseProtestor(); // decrease number of active protestors
 			return;
 		}
-		// 3b else protestor must move one square close to exit point
-		else
-		{
-			getWorld()->movingtoExitPoint(this); // move on sqaure close to the exit point
-			return;
-		}
+		getWorld()->movingtoExitPoint(this); // // 3b else protestor must move one square close to exit point, move on sqaure close to the exit point
+		return;
 	}
 	// #4 Check to see if protestor is within 4 units of TunnelMan and shout
 	if (getWorld()->playerInRadius(this, 4) && protestorFacingTunnelMan()) // if protestor is within 4 units of Tunnelman and facing in Tunnelman direction
@@ -383,6 +376,7 @@ void Protestor::doSomething()
 			ticksTillYell = 0; // 4c. update protestor shouting resting state
 			return;
 		}
+		return;
 	}
 	// #5 for Hard_Core_Protestor
 	if (getID() == TID_HARD_CORE_PROTESTER)
@@ -406,20 +400,22 @@ void Protestor::doSomething()
 		moveTowardsDirection(lineofSight); // take one step toward TunnelMan
 		numofSquaresToMoveInCurrentDirection = 0; // set numSquaresToMoveInCurrentDirection to 0, forcing it to pick a new direction/distance
 		// to move during its next non-resting tick. 
+		return;
 	}
 
 	// #6 Otherwise protestor can't directly see TunnelMan 
 	numofSquaresToMoveInCurrentDirection--; // decrement variable by 1
 	if (numofSquaresToMoveInCurrentDirection <= 0) // if protestor has finished walking numSquares... steps in its currently selected direction
 	{
-		Direction newDirection = randomNewDirection(); // protestor will pick random new direction to move
+		Direction newDirection = none;
+		newDirection = randomNewDirection(); // protestor will pick random new direction to move
 		while (true) // infinte while loop unless break
 		{
+			newDirection = randomNewDirection(); // protestor will pick random new direction to move
 			if (getWorld()->canActorMoveThisDirection(getX(), getY(), newDirection)) // if random direction is not blocked by earth or boulders
 			{
 				break;
 			}
-			newDirection = randomNewDirection(); // protestor will pick random new direction to move
 		}
 		setDirection(newDirection); // change protestor's direction to this new chosenn direction
 		randomNumberMoves(); // protestor will then pick a new value for numSquaresToMoveInCurrentDirection that will govern
@@ -428,11 +424,12 @@ void Protestor::doSomething()
 
 	// #7 If protestor is at a T intersection where it can turn and move perpendicular and hasn't made
 	// a perpendicular turn in 200 non resting ticks
-	if (ticksSincePreviousTurn > 200 && protestoratIntersection())
+	else if ((ticksSincePreviousTurn > 200) && protestoratIntersection())
 	{
 		pickDirectionToTurn(); // pick direction for protestor to turn
-		randomNumberMoves(); // pick new value for numSquaresToMoveInCurrentDirection that govern how far it will move in selected perpendicular direction
 		ticksSincePreviousTurn = 0; // protestor made turn so wait at least 200 more non resting ticks
+		randomNumberMoves(); // pick new value for numSquaresToMoveInCurrentDirection that govern how far it will move in selected perpendicular direction
+		
 	}
 
 	// #8 Protestor will take one step it is currently facing
@@ -452,26 +449,22 @@ GraphObject::Direction Protestor::randomNewDirection()
 	int randomNum = rand() % 4; // random nummber from 0-3 inclusive
 	switch (randomNum)
 	{
-	case 0:
-	{
-		return up;
-		break;
-	}
-	case 1:
-	{
-		return down;
-		break;
-	}
-	case 2:
-	{
-		return left;
-		break;
-	}
-	case 3:
-	{
-		return right;
-		break;
-	}
+		case 0:
+		{
+			return up;
+		}
+		case 1:
+		{
+			return down;
+		}
+		case 2:
+		{
+			return left;
+		}
+		case 3:
+		{
+			return right;
+		}
 	}
 	return none;
 }
@@ -487,33 +480,26 @@ bool Protestor::protestorFacingTunnelMan()
 {
 	switch (getDirection()) // get direction protestor is facing
 	{
-	case up:
-		if (getY() <= getWorld()->getPlayer()->getY()) // if protestor is facing player and above player
+		case up:
 		{
-			return true;
-			break;
-		}
-	case right:
-		if (getX() <= getWorld()->getPlayer()->getX()) // if protestor is facing player and right of player
+			return (getY() <= getWorld()->getPlayer()->getY()); // if protestor is facing player and above player
+		}	
+		case right:
 		{
-			return true;
-			break;
+			return (getX() <= getWorld()->getPlayer()->getX()); // if protestor is facing player and right of player
 		}
-	case down:
-		if (getY() >= getWorld()->getPlayer()->getY()) // if protestor is facing player and belwo player
+		case down:
 		{
-			return true;
-			break;
+			return (getY() >= getWorld()->getPlayer()->getY()); // if protestor is facing player and belwo player
 		}
-	case left:
-		if (getY() >= getWorld()->getPlayer()->getY()) // if protestor is facing player and left of player
+		case left:
 		{
-			return true;
-			break;
+			return (getY() >= getWorld()->getPlayer()->getY()); // if protestor is facing player and left of player
 		}
-	case none:
-		return false;
-		break;
+		case none:
+		{
+			return false;
+		}
 	}
 	return false;
 }
@@ -535,8 +521,7 @@ void Protestor::bribing()
 
 void Protestor::getStunned()
 {
-	int lvl = getWorld()->getLevel();
-	ticksToWaitBetweenMoves = max(50, 100 - (lvl * 10)); // function of the amount of ticks they have to wait
+	ticksToWaitBetweenMoves = max(50, 100 - ((int)getWorld()->getLevel() * 10)); // function of the amount of ticks they have to wait
 }
 
 //move in set direction
@@ -544,58 +529,74 @@ void Protestor::moveTowardsDirection(Direction dir)
 {
 	switch (dir)
 	{
-	case up:
-	{
-		if (getDirection() == up)
+		case up:
 		{
-			if (getY() == 60) // 60 is limit for human to reach in terms of rows
+			if (getDirection() == up)
 			{
-				setDirection(down);
+				if (getY() == 60) // 60 is limit for human to reach in terms of rows
+				{
+					setDirection(down);
+				}
+				moveTowards(getX(), getY() + 1); // else move up 1
 			}
-			moveTowards(getX(), getY() + 1); // else move up 1
-		}
-		break;
-	}
-	case right:
-	{
-		if (getDirection() == right)
-		{
-			if (getX() == 60) // 60 is limit for human to reach in terms of columns 
-			{
-				setDirection(left);
-			}
-			moveTowards(getX() + 1, getY()); // else move right 1
-		}
-		break;
-	}
-	case down:
-	{
-		if (getDirection() == down)
-		{
-			if (getY() == 0) // 0 is limit for human to reach in terms of rows
+			else
 			{
 				setDirection(up);
 			}
-			moveTowards(getX(), getY() - 1); // else move down 1
+			break;
 		}
-		break;
-	}
-	case left:
-	{
-		if (getDirection() == up)
+		case right:
 		{
-			if (getY() == 60) // 60 is limit for human to reach in terms of rows
+			if (getDirection() == right)
+			{
+				if (getX() == 60) // 60 is limit for human to reach in terms of columns 
+				{
+					setDirection(left);
+				}
+				moveTowards(getX() + 1, getY()); // else move right 1
+			}
+			else
 			{
 				setDirection(right);
 			}
-			moveTowards(getX() - 1, getY()); // else move left 1
+			break;
 		}
-		break;
-	}
-	case none:
-	{
-		return;
-	}
+		case down:
+		{
+			if (getDirection() == down)
+			{
+				if (getY() == 0) // 0 is limit for human to reach in terms of rows
+				{
+					setDirection(up);
+				}
+				moveTowards(getX(), getY() - 1); // else move down 1
+			}
+			else
+			{
+				setDirection(down);
+			}
+			break;
+		}
+		case left:
+		{
+			if (getDirection() == left)
+			{
+				if (getX() == 0) // 0 is limit for human to reach in terms of columns
+				{
+					setDirection(right);
+				}
+				moveTowards(getX() - 1, getY()); // else move left 1
+			}
+			else
+			{
+				setDirection(left);
+			}
+			break;
+		}
+		case none:
+		{
+			return;
+		}
 	}
 }
 
@@ -613,6 +614,8 @@ void Protestor::actorAnnoyed(int damage)
 	if (getHealthPoints() <= 0) // check to see if protestor still has enough health points to stay in the field
 	{
 		getWorld()->playSound(SOUND_PROTESTER_GIVE_UP);
+		toLeave = true;
+		ticksToWaitBetweenMoves = 0;
 		if (damage == 100) // check to see if protestor was hit a boulder
 		{
 			getWorld()->increaseScore(500); // increase score by 500
@@ -625,8 +628,6 @@ void Protestor::actorAnnoyed(int damage)
 		{
 			getWorld()->increaseScore(250); // increase score by 250
 		}
-		ticksToWaitBetweenMoves = 0;
-		toLeave = true;
 	}
 
 }
@@ -636,6 +637,10 @@ GraphObject::Direction Protestor::directionTowardsTunnelMan()
 	int tunnelManYLocation = getWorld()->getPlayer()->getY();
 	int tunnelManXLocation = getWorld()->getPlayer()->getX();
 
+	if (getX() == tunnelManXLocation && getY() == tunnelManYLocation) // if protestor is on top of tunnelman
+	{
+		return getDirection();
+	}
 	if (tunnelManXLocation == getX()) //if tunnelman and protestor in same column
 	{
 		if (getY() > tunnelManYLocation) // if protestor is above the tunnelman
@@ -658,10 +663,7 @@ GraphObject::Direction Protestor::directionTowardsTunnelMan()
 			return right;
 		}
 	}
-	if (getX() == tunnelManXLocation && getY() == tunnelManYLocation) // if protestor is on top of tunnelman
-	{
-		return getDirection();
-	}
+	
 	return none;
 }
 
@@ -673,56 +675,58 @@ bool Protestor::straightTowardsTunnelMan(Direction dir)
 
 	switch (dir)
 	{
-	case up:
-	{
-		for (int i = getY(); i <= tunnelManYLocation; i++) // for loop from protestor row value to tunnelman row value
+		case up:
 		{
-			if (getWorld()->checkBoulder(getX(), i) || getWorld()->checkEarth(getX(), i)) // if any earth or boulder in between both position, false
+			for (int i = getY(); i <= tunnelManYLocation; i++) // for loop from protestor row value to tunnelman row value
 			{
-				return false;
+				if (getWorld()->checkBoulder(getX(), i) || getWorld()->checkEarth(getX(), i)) // if any earth or boulder in between both position, false
+				{
+					return false;
+				}
 			}
+			return true; // return true, when there is a straight line of sight from protestor to tunnelman
+			break;
 		}
-		return true; // return true, when there is a straight line of sight from protestor to tunnelman
-		break;
-	}
-	case down:
-	{
-		for (int i = getY(); i >= tunnelManYLocation; i--) // for loop from protestor row value to tunnelman row value
+		case down:
 		{
-			if (getWorld()->checkBoulder(getX(), i) || getWorld()->checkEarth(getX(), i)) // if any earth or boulder in between both position, false
+			for (int i = getY(); i >= tunnelManYLocation; i--) // for loop from protestor row value to tunnelman row value
 			{
-				return false;
+				if (getWorld()->checkBoulder(getX(), i) || getWorld()->checkEarth(getX(), i)) // if any earth or boulder in between both position, false
+				{
+					return false;
+				}
 			}
+			return true; // return true, when there is a straight line of sight from protestor to tunnelman
+			break;
 		}
-		return true; // return true, when there is a straight line of sight from protestor to tunnelman
-		break;
-	}
-	case right:
-	{
-		for (int i = getX(); i <= tunnelManXLocation; i++) // for loop from protestor column value to tunnelman column value
+		case right:
 		{
-			if (getWorld()->checkBoulder(i, getY()) || getWorld()->checkEarth(i, getY())) // if any earth or boulder in between both position, false
+			for (int i = getX(); i <= tunnelManXLocation; i++) // for loop from protestor column value to tunnelman column value
 			{
-				return false;
+				if (getWorld()->checkBoulder(i, getY()) || getWorld()->checkEarth(i, getY())) // if any earth or boulder in between both position, false
+				{
+					return false;
+				}
 			}
+			return true; // return true, when there is a straight line of sight from protestor to tunnelman
+			break;
 		}
-		return true; // return true, when there is a straight line of sight from protestor to tunnelman
-		break;
-	}
-	case left:
-	{
-		for (int i = getX(); i >= tunnelManXLocation; i--) // for loop from protestor column value to tunnelman column value
+		case left:
 		{
-			if (getWorld()->checkBoulder(i, getY()) || getWorld()->checkEarth(i, getY())) // if any earth or boulder in between both position, false
+			for (int i = getX(); i >= tunnelManXLocation; i--) // for loop from protestor column value to tunnelman column value
 			{
-				return false;
+				if (getWorld()->checkBoulder(i, getY()) || getWorld()->checkEarth(i, getY())) // if any earth or boulder in between both position, false
+				{
+					return false;
+				}
 			}
+			return true; // return true, when there is a straight line of sight from protestor to tunnelman
+			break;
 		}
-		return true; // return true, when there is a straight line of sight from protestor to tunnelman
-		break;
-	}
-	case none:
-		return false;
+		case none:
+		{
+			return false;
+		}
 	}
 	return false;
 }
@@ -764,17 +768,14 @@ void Protestor::pickDirectionToTurn()
 			int x = rand() % 2;
 			switch (x)
 			{
-			case 0:
-			{
-				setDirection(up);
-				break;
-			}
-			case 1:
-			{
-				setDirection(down);
-				break;
-			}
-
+				case 0:
+				{
+					setDirection(up);
+				}
+				case 1:
+				{
+					setDirection(down);
+				}
 			}
 		}
 	}
@@ -797,17 +798,14 @@ void Protestor::pickDirectionToTurn()
 			int x = rand() % 2;
 			switch (x)
 			{
-			case 0:
-			{
-				setDirection(left);
-				break;
-			}
-			case 1:
-			{
-				setDirection(right);
-				break;
-			}
-
+				case 0:
+				{
+					setDirection(left);
+				}
+				case 1:
+				{
+					setDirection(right);
+				}
 			}
 		}
 	}
@@ -864,7 +862,7 @@ void Boulder::doSomething()
 		{
 			moveTowards(getX(), getY() - 1);
 		}
-		annoyPerson(); // we will also be checking if there is a person under to "annoy"
+		//annoyPerson(); // we will also be checking if there is a person under to "annoy"
 	}
 }
 
@@ -904,62 +902,62 @@ void Squirt::doSomething()
 
 	switch (getDirection())
 	{
-	case up:
-	{
-		if (checkForObject(getX(), getY() + 1)) // checks for an earth or boulder directly above
+		case up:
 		{
-			isDead(); // squirt is put into a dead state
+			if (checkForObject(getX(), getY() + 1)) // checks for an earth or boulder directly above
+			{
+				isDead(); // squirt is put into a dead state
+				return;
+			}
+			else
+			{
+				moveTowards(getX(), getY() + 1); // otherwise, move above one unit
+			}
+			break;
+		}
+		case down:
+		{
+			if (checkForObject(getX(), getY() - 1)) // checks for an earth or boulder directly below
+			{
+				isDead(); // squirt is put into a dead state
+				return;
+			}
+			else
+			{
+				moveTowards(getX(), getY() - 1); // otherwise, move below one unit
+			}
+			break;
+		}
+		case left:
+		{
+			if (checkForObject(getX() - 1, getY())) // checks for an earth or boulder to the left
+			{
+				isDead(); // squirt is put into a dead state
+				return;
+			}
+			else
+			{
+				moveTowards(getX() - 1, getY()); // otherwise, move to the left one unit
+			}
+			break;
+		}
+		case right:
+		{
+			if (checkForObject(getX() + 1, getY())) // checks for an earth or boulder to the right
+			{
+				isDead(); // squirt is put into a dead state
+				return;
+			}
+			else
+			{
+				moveTowards(getX() + 1, getY()); // otherwise, move to the right one unit
+			}
+			break;
+		}
+		case none:
+		{
 			return;
 		}
-		else
-		{
-			moveTowards(getX(), getY() + 1); // otherwise, move above one unit
-		}
-		break;
-	}
-	case down:
-	{
-		if (checkForObject(getX(), getY() - 1)) // checks for an earth or boulder directly below
-		{
-			isDead(); // squirt is put into a dead state
-			return;
-		}
-		else
-		{
-			moveTowards(getX(), getY() - 1); // otherwise, move below one unit
-		}
-		break;
-	}
-	case left:
-	{
-		if (checkForObject(getX() - 1, getY())) // checks for an earth or boulder to the left
-		{
-			isDead(); // squirt is put into a dead state
-			return;
-		}
-		else
-		{
-			moveTowards(getX() - 1, getY()); // otherwise, move to the left one unit
-		}
-		break;
-	}
-	case right:
-	{
-		if (checkForObject(getX() + 1, getY())) // checks for an earth or boulder to the right
-		{
-			isDead(); // squirt is put into a dead state
-			return;
-		}
-		else
-		{
-			moveTowards(getX() + 1, getY()); // otherwise, move to the right one unit
-		}
-		break;
-	}
-	case none:
-	{
-		return;
-	}
 	}
 	travel++; // the squirt travel distance is incremented 
 }
@@ -970,7 +968,7 @@ bool Squirt::checkForObject(int x, int y)
 	return (getWorld()->checkEarth(x, y) || getWorld()->checkBoulder(x, y)); // checks for earth or a boulder to the respected x and y coords
 }
 
-// function which damages protestor 
+//// function which damages protestor 
 bool Squirt::hitProtesters()
 {
 	Protestor* grabProtestor = getWorld()->protesterInRadius(this, 3); // grabs a protestor within 3 units
