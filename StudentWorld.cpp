@@ -14,15 +14,12 @@ GameWorld* createStudentWorld(string assetDir)
 }
 
 // .............................. STUDENTWORLD CLASS ..............................
-
-
-StudentWorld::StudentWorld(string assetDir) : GameWorld(assetDir)
+StudentWorld::StudentWorld(string assetDir) :GameWorld(assetDir)
 {
 	theFirstTick = true;
 	tickSincePreviousIteration = 0;
-	numberofActiveProtesters = 0;
+	numberofActiveProtestors = 0;
 	tunnelPlayer = nullptr;
-	numOfBarrels = 0;
 }
 
 StudentWorld::~StudentWorld()
@@ -30,7 +27,7 @@ StudentWorld::~StudentWorld()
 	cleanUp();
 }
 
-TunnelMan * StudentWorld::getPlayer()
+TunnelMan* StudentWorld::getPlayer()
 {
 	return tunnelPlayer;
 }
@@ -38,8 +35,7 @@ TunnelMan * StudentWorld::getPlayer()
 int StudentWorld::init() // creates oil field and tunnelman
 {
 	// new field reset all variables
-	numOfBarrels = 0;
-	numberofActiveProtesters = 0;
+	numberofActiveProtestors = 0;
 	theFirstTick = true;
 	tickSincePreviousIteration = 0;
 
@@ -56,78 +52,46 @@ int StudentWorld::init() // creates oil field and tunnelman
 		}
 	}
 	tunnelPlayer = new TunnelMan(this); // create tunnelman player
-	int B = min((int)getLevel() / 2 + 2, 9); // boulders
-	int G = max((int)getLevel() / 2, 2); // gold
-	int O = min(2 + (int)getLevel(), 21); // oil
-	addGameItems(B, 'B');
-	addGameItems(G, 'G');
-	addGameItems(O, 'O');
 
 	return GWSTATUS_CONTINUE_GAME;
 }
 
-void StudentWorld::addGameItems(int num, char letter) // addBoulderorGoldorBarrel();
-{
-	int col, row;
-	for (int i = 0; i < num; i++)
-	{
-		do {
-			col = rand() % 60 + 1; // grab a random x value
-			if (letter == 'B')
-				// Boulders must be distributed between x=0,y=20 and x=60,y=56, inclusive
-				y = rand() % 36 + 1 + 20;
-			else
-				// gold and oil must be distributed between x = 0, y = 0 and x = 60, y = 56 inclusive
-				y = rand() % 56 + 1;
-		} while (actorsInRadius(col, row, 6) || (x > 26 && x < 34 && y > 0)); // checking for within range
-		switch(letter)
-			case 'B':
-				addActor(new Boulder(this, row, col));
-				break;
-			case 'G':
-				addActor(new Gold(this, row, col, false, false));
-				break;
-			case 'O':
-				addActor(new Oil(this, row, col));
-				break;
-	}
-}
-
-bool StudentWorld::actorsInRadius(int x, int y, int radius)
-{
-	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
-	{
-		if (inRadiusAux(x, y, (*it)->getX(), (*it)->getY(), radius))
-			return true;
-	}
-	return false;
-}
-
-
 int StudentWorld::move() // tells all actors in the current tick to doSomething()
 {
-	// updatetext do later
+	// updatetext 
+	setDisplaytext();
 
 	// Give each Actor a chance to do something
-	for (auto it : actors)
+	vector<Actor*>::iterator passby;
+	for (passby = actors.begin(); passby != actors.end(); passby++)
 	{
-		if(it->isAlive()) //check to see if actor is alive
+		if ((*passby)->isAlive()) //check to see if actor is alive
 		{
-			it->doSomething();
+			(*passby)->doSomething();
 		}
 		if (!tunnelPlayer->isAlive()) // check if tunnelMan player is alive
 		{
 			decLives(); // decrease life of player
 			return GWSTATUS_PLAYER_DIED;
 		}
-		if (numOfBarrels == 0) // if player completed level by obtaining all the level's barrels
-		{
-			return GWSTATUS_FINISHED_LEVEL;
-		}
 
 	}
 	tunnelPlayer->doSomething(); // ask TunnelMan object to do something
+	protestorAdded();
 
+	// clean dead actors
+	for (passby = actors.begin(); passby != actors.end();) // for loop until iterator meets end
+	{
+		if (!(*passby)->isAlive()) // check to see if actor is dead
+		{
+			delete* passby;
+			passby = actors.erase(passby);
+		}
+		else // else iterate to next actor in vector
+		{
+			passby++;
+		}
+	}
 	return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -152,6 +116,123 @@ void StudentWorld::cleanUp() // delete the level
 
 }
 
+// function that displays game info: score, level, lives...
+void StudentWorld::setDisplaytext()
+{
+	int level = getLevel();
+	int lives = getLives();
+	int health = tunnelPlayer->getHealthPoints();
+	int score = getScore();
+	int gold = tunnelPlayer->getGoldNugget();
+	int sonar = tunnelPlayer->getSonarCharge();
+	int squirts = tunnelPlayer->getWater();
+
+	stringstream s;
+
+	s.fill('0');
+	s << "Scr: ";
+	s << setw(6) << score;
+
+	s.fill(' ');
+	s << " Lvl: ";
+	s << setw(2) << level;
+
+	s << " Lives: ";
+	s << setw(1) << lives;
+
+	s << "  Hlth: ";
+	s << setw(3) << health * 10;
+	s << '%';
+
+	s << "  Wtr: ";
+	s << setw(2) << squirts;
+
+	s << "  Gld: ";
+	s << setw(2) << gold;
+
+	s << "  Sonar: ";
+	s << setw(2) << sonar;
+
+	s << "  Oil Left: ";
+	s << setw(2) << numOfBarrels;
+
+	string x = s.str();
+
+	//string s = formatText(score, level, lives, health, squirts, gold, sonar, numOfBarrels);
+	setGameStatText(x);
+
+}
+
+//string StudentWorld::formatText(int score, int level, int lives, int health, int squirts, int gold, int sonar, int barrels)
+//{
+//	stringstream s;
+//
+//	s.fill('0');
+//	s << "Scr: ";
+//	s << setw(6) << score;
+//
+//	s.fill(' ');
+//	s << " Lvl: ";
+//	s << setw(2) << level;
+//
+//	s << " Lives: ";
+//	s << setw(1) << lives;
+//
+//	s << "  Hlth: ";
+//	s << setw(3) << health * 10;
+//	s << '%';
+//
+//	s << "  Wtr: ";
+//	s << setw(2) << squirts;
+//
+//	s << "  Gld: ";
+//	s << setw(2) << gold;
+//
+//	s << "  Sonar: ";
+//	s << setw(2) << sonar;
+//
+//	s << "  Oil Left: ";
+//	s << setw(2) << barrels;
+//
+//	return s.str();
+//}
+
+// checks if actors are within the radius
+bool StudentWorld::actorsInRadius(int x, int y, int radius)
+{
+	vector<Actor*>::iterator it;
+	for (it = actors.begin(); it != actors.end(); ++it) // loops through vector containing actors
+	{
+		if (inRadiusAux(x, y, (*it)->getX(), (*it)->getY(), radius)) // calls inRadiusAux to see if any actors are within radius
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+// check if inside the radius
+bool StudentWorld::inRadiusAux(int x1, int x2, int y1, int y2, int radius)
+{
+	if (pow((x2 - x1), 2) + pow((y2 - y1), 2) <= radius)
+		return true;
+	return false;
+}
+
+// looks for oil or gold nearby
+bool StudentWorld::checkGoodies(int x, int y, int radius)
+{
+	vector<Actor*>::iterator it;
+	for (it = actors.begin(); it != actors.end(); ++it) // loops through vector containing actors
+	{
+		if ((*it)->getID() == TID_GOLD || (*it)->getID() == TID_BARREL) // checks nearby radius for any gold or barrels of oil
+		{
+			if (inRadiusAux(x, (*it)->getX(), y, (*it)->getY(), radius))
+				(*it)->setVisible(true);
+		}
+	}
+	return false;
+}
 // function which removes earth object 4by4 area occupied by tunnelman, returns true if yes
 bool StudentWorld::diggingEarth(int col, int row)
 {
@@ -172,10 +253,39 @@ bool StudentWorld::diggingEarth(int col, int row)
 	return destroyedEarth;
 }
 
-// function which decreases number of protesters on field
-void StudentWorld::decreaseProtester()
+// function adding protestors on field
+void StudentWorld::protestorAdded()
 {
-	numberofActiveProtesters--;
+	// #1 a new protestor may be added to field after at least T ticks have passed since the last protestor was added
+	int T = max(25, 200 - (int)getLevel());
+	// #2 maximum number protestors is P 
+	int P = fmin(15, 2 + (int)getLevel() * 1.5); // needed fmin instead of min since min would not take (int, double) as parameter
+	int probabilityOfHardcore = min(90, (int)getLevel() * 10 + 30);
+
+	// #3,4 first protestor added during very first tick of each level
+	// if appropiate # of ticks passed since last protestor added and # of protestors is less than P 
+	if (theFirstTick || (tickSincePreviousIteration > T && numberofActiveProtestors < P))
+	{
+		int willbenotHardCore = rand() % 100 + 1; // number range from 0-100
+		if (willbenotHardCore < probabilityOfHardcore) // if less than probabilityOfHardcore, hardcore protestor is added
+		{
+			actorAdded(new Hardcore_Protestor(this));
+		}
+		else // else a regular protestor was added
+		{
+			actorAdded(new Regular_Protestor(this));
+		}
+		numberofActiveProtestors++;
+		theFirstTick = false;
+		tickSincePreviousIteration = 0;
+	}
+	tickSincePreviousIteration++;
+}
+
+// function which decreases number of protestors on field
+void StudentWorld::decreaseProtestor()
+{
+	numberofActiveProtestors--;
 }
 
 // function which returns true or false wherein can the actor move the desired direction without hitting a earth or boulder object
@@ -184,8 +294,8 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 	// switch case returning true or false based upon actor's movement 
 	switch (dir)
 	{
-	// case whether the actor can move up
-	case GraphObject::up: 
+		// case whether the actor can move up
+	case GraphObject::up:
 	{
 		// if statement checking if above the actor there isn't an earth and boulder object and current x
 		// isnt the exit point
@@ -204,13 +314,14 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 		{
 			return true;
 		}
+		break;
 	}
 	// case whether the actor can move left
-	case GraphObject::left :
+	case GraphObject::left:
 	{
 		// if statement checking if above the actor there isn't an earth and boulder object and current x
 		// isnt the exit point
-		if (!checkBoulder(x-1, y) && !checkEarth(x-1, y) && x != 60)
+		if (!checkBoulder(x - 1, y) && !checkEarth(x - 1, y) && x != 60)
 		{
 			return true;
 		}
@@ -221,7 +332,7 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 	{
 		// if statement checking if above the actor there isn't an earth and boulder object and current x
 		// isnt the exit point
-		if (!checkBoulder(x+1, y) && !checkEarth(x+1, y) && x != 60)
+		if (!checkBoulder(x + 1, y) && !checkEarth(x + 1, y) && x != 60)
 		{
 			return true;
 		}
@@ -237,7 +348,7 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 }
 
 // queue based maze searching, exploring the oldest x,y location inserted into the queue first
-void StudentWorld::movingtoExitPoint(Protester* pointer)
+void StudentWorld::movingtoExitPoint(Protestor* pointer)
 {
 	// populate queue based maze with 0s
 	for (int i = 0; i < 64; i++)
@@ -315,38 +426,47 @@ void StudentWorld::movingtoExitPoint(Protester* pointer)
 		pointer->moveTowardsDirection(GraphObject::down); // tell actor to move towards down direction
 	}
 	return;
+
 }
-bool StudentWorld::checkEarth(int col, int row) // creating the initial tunnel 
+bool StudentWorld::checkEarth(int col, int row) // check to see if Earth is in current index
 {
 	for (int i = col; i < col + 4; i++) {
 
 		for (int j = row; j < row + 4; j++) {
 
 			if (earthArray[i][j] != nullptr)
+			{
 				return true;
+			}
 		}
 	}
 	return false;
 }
 
+// function to check if actor is above earth
 bool StudentWorld::earthAbove(int x, int y)
 {
 	for (int i = x; i < x + 4; i++)
 		if (earthArray[i][y] != nullptr)
+		{
 			return true;
+		}
 	return false;
 }
 
 bool StudentWorld::checkBoulder(int x, int y, int radius)
 {
-	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
-		if ((*it)->getID() == TID_BOULDER && inRadiusAux(x, y, (*it)->getX(), (*it)->getY(), radius))
+	vector<Actor*>::iterator it;
+	for (it = actors.begin(); it != actors.end(); ++it)
+		if ((*it)->getID() == TID_BOULDER && inRadius(x, y, (*it)->getX(), (*it)->getY(), radius))
+		{
 			return true;
+		}
 	return false;
 }
 
 // function telling which direction protestor to move if tunnelman cellphone signal within 15 moves away
-GraphObject::Direction StudentWorld::cellphoneSignalDirection(Protester* pointer, int M)
+GraphObject::Direction StudentWorld::cellphoneSignalDirection(Protestor* pointer, int M)
 {
 	// use queue-based maze searching algorithm 
 	// populate queue based maze with 0s
@@ -432,40 +552,33 @@ GraphObject::Direction StudentWorld::cellphoneSignalDirection(Protester* pointer
 	return GraphObject::none;
 }
 
-bool StudentWorld::inRadiusAux(int x1, int x2, int y1, int y2, int radius)
+bool StudentWorld::inRadius(int x1, int x2, int y1, int y2, int radius)
 {
 	if (pow((x2 - x1), 2) + pow((y2 - y1), 2) <= radius)
 		return true;
 	return false;
 }
 
-bool StudentWorld::checkGoodies(int x, int y, int radius)
-{
-	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
-	{
-		if ((*it)->getID() == TID_BARREL || (*it)->getID() == TID_GOLD)
-		{
-			if (inRadiusAux(x, (*it)->getX(), y, (*it)->getY(), radius))
-				(*it)->setVisible(true);
-		}
-	}
-	return false;
-}
-
 bool StudentWorld::playerInRadius(Actor* a, int radius)
 {
-	return inRadiusAux(a->getX(), a->getY(), tunnelPlayer->getX(), tunnelPlayer->getY(), radius);
+	return inRadius(a->getX(), a->getY(), tunnelPlayer->getX(), tunnelPlayer->getY(), radius);
 }
 
 Protestor* StudentWorld::protesterInRadius(Actor* a, int radius)
 {
-	for (vector<Actor*>::iterator it = actors.begin(); it != actors.end(); ++it)
+	vector<Actor*>::iterator it;
+	for (it = actors.begin(); it != actors.end(); ++it)
 		if (((*it)->getID() == TID_PROTESTER || (*it)->getID() == TID_HARD_CORE_PROTESTER)
-			&& inRadiusAux(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), radius))
+			&& inRadius(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), radius))
 		{
 			return dynamic_cast<Protestor*> (*it);
 		}
 	return nullptr;
+}
+
+void StudentWorld::actorAdded(Actor* actor)
+{
+	actors.push_back(actor); // adding new actor to vector
 }
 
 void StudentWorld::addGoodies()
@@ -475,19 +588,51 @@ void StudentWorld::addGoodies()
 	if (int(rand() % G) + 1 == 1) // 1 in G chance of spawning a sonar or water kit
 	{
 		if (int(rand() % 5) + 1 == 1) // 1 in 5 chance for a Sonar kit
-			addActor(new Sonar(this, 0, 60));
+			actorAdded(new Sonar(this, 0, 60));
 		else // 4 in 5 chance for a Water 
 		{
 			do {
 				col = rand() & 60 + 1; // grab a random col
 				row = rand() & 60 + 1; // grab a random row
 			} while (checkEarth(col, row)); // while there is Earth in the current index
-			addActor(new Water(this, col, row));
+			actorAdded(new Water(this, col, row));
 		}
 	}
 }
 
-void StudentWorld::addActor(Actor* actor)
+void StudentWorld::addGameItems(int num, char letter) // addBoulderorGoldorBarrel();
 {
-	actors.push_back(actor); // adding to the vector
+	int col = 0;
+	int row = 0;
+	for (int i = 0; i < num; i++)
+	{
+		do {
+			col = rand() % 60 + 1; // grab a random x value range[0-60]
+			if (letter == 'B')
+				// Boulders must be distributed between x=0,y=20 and x=60,y=56, inclusive
+				// rand() format rand()%((userEnd - userBeg) + 1) + userBeg; 
+				row = rand() % (56 - 20 + 1) + 20;
+			else
+				// gold and oil must be distributed between x = 0, y = 0 and x = 60, y = 56 inclusive
+				row = rand() % (56 - 20 + 1) + 20; // rand() format rand()%((userEnd - userBeg) + 1) + userBeg; 
+		} while ((col > 26 && col < 34 && row > 0) || actorsInRadius(col, row, 6)); // checking for within range
+		switch (letter)
+		{
+		case 'B':
+		{
+			actorAdded(new Boulder(this, row, col));
+			break;
+		}
+		case 'G':
+		{
+			actorAdded(new Gold(this, row, col, false, false));
+			break;
+		}
+		case 'O':
+		{
+			actorAdded(new Oil(this, row, col));
+			break;
+		}
+		}
+	}
 }
