@@ -1,0 +1,3 @@
+﻿  StudentWorld.cpp
+C:\Users\sherr\OneDrive\Documents\Fall 2020\CS 30\Assignment Info\Project 3\Testing TunnelMan\TunnelMan-skeleton-windows\TunnelMan\TunnelMan\StudentWorld.cpp(275,8): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  TunnelMan.vcxproj -> C:\Users\sherr\OneDrive\Documents\Fall 2020\CS 30\Assignment Info\Project 3\Testing TunnelMan\TunnelMan-skeleton-windows\TunnelMan\Debug\TunnelMan.exe

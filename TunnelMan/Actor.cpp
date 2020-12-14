@@ -641,7 +641,7 @@ GraphObject::Direction Protestor::directionTowardsTunnelMan()
 	{
 		return getDirection();
 	}
-	if (getX() == tunnelManXLocation) //if tunnelman and protestor in same column
+	if (tunnelManXLocation == getX()) //if tunnelman and protestor in same column
 	{
 		if (getY() > tunnelManYLocation) // if protestor is above the tunnelman
 		{
@@ -652,9 +652,9 @@ GraphObject::Direction Protestor::directionTowardsTunnelMan()
 			return up;
 		}
 	}
-	if (getY() == tunnelManYLocation) //if tunnelman and protestor in same row
+	if (tunnelManYLocation == getY()) //if tunnelman and protestor in same row
 	{
-		if (getX() > tunnelManXLocation) // if protestor is right of tunnelman
+		if (getX() > tunnelManYLocation) // if protestor is right of tunnelman
 		{
 			return left;
 		}
@@ -670,7 +670,7 @@ GraphObject::Direction Protestor::directionTowardsTunnelMan()
 // function to check if protestor direction's has a straight line of sight to TunnelMan
 bool Protestor::straightTowardsTunnelMan(Direction dir)
 {
-	int tunnelManYLocation = getWorld()->getPlayer()->getX();
+	int tunnelManYLocation = getWorld()->getPlayer()->getY();
 	int tunnelManXLocation = getWorld()->getPlayer()->getX();
 
 	switch (dir)
@@ -862,7 +862,7 @@ void Boulder::doSomething()
 		{
 			moveTowards(getX(), getY() - 1);
 		}
-		annoyPerson(); // we will also be checking if there is a person under to "annoy"
+		//annoyPerson(); // we will also be checking if there is a person under to "annoy"
 	}
 }
 
