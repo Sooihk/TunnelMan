@@ -38,6 +38,7 @@ int StudentWorld::init() // creates oil field and tunnelman
 	numberofActiveProtestors = 0;
 	theFirstTick = true;
 	tickSincePreviousIteration = 0;
+	numOfBarrels = 0;
 
 	// create new oil field
 	for (int x = 0; x < VIEW_WIDTH; x++) // x is column
@@ -52,6 +53,13 @@ int StudentWorld::init() // creates oil field and tunnelman
 		}
 	}
 	tunnelPlayer = new TunnelMan(this); // create tunnelman player
+
+	int B = min((int)getLevel() / 2 + 2, 9);
+	int G = max((int)getLevel() / 2, 2);
+	int O = min(2 + (int)getLevel(), 21);
+	addGameItems(B, 'B');
+	addGameItems(G, 'G');
+	addGameItems(O, 'O');
 
 	return GWSTATUS_CONTINUE_GAME;
 }
@@ -74,9 +82,14 @@ int StudentWorld::move() // tells all actors in the current tick to doSomething(
 			decLives(); // decrease life of player
 			return GWSTATUS_PLAYER_DIED;
 		}
+		if (numOfBarrels == 0)
+		{
+			return GWSTATUS_FINISHED_LEVEL;
+		}
 
 	}
 	tunnelPlayer->doSomething(); // ask TunnelMan object to do something
+	addGoodies();
 	protestorAdded();
 
 	// clean dead actors
@@ -240,7 +253,7 @@ bool StudentWorld::diggingEarth(int col, int row)
 	// remove earth objects from the 4by4 area occupied by the tunnelman
 	for (int i = col; i < col + 4; i++) // use nested for loop to delete 2d earthArray index
 	{
-		for (int j = row; j < row + 3; j++)
+		for (int j = row; j < row + 4; j++)
 		{
 			if (earthArray[i][j] != nullptr) // check if earth was already dugged
 			{
@@ -552,9 +565,9 @@ GraphObject::Direction StudentWorld::cellphoneSignalDirection(Protestor* pointer
 	return GraphObject::none;
 }
 
-bool StudentWorld::inRadius(int x1, int x2, int y1, int y2, int radius)
+bool StudentWorld::inRadius(int x1, int y1, int x2, int y2, int radius)
 {
-	if (pow((x2 - x1), 2) + pow((y2 - y1), 2) <= radius)
+	if (pow((x2 - x1), 2) + pow((y2 - y1), 2) <= pow(radius, 2))
 		return true;
 	return false;
 }
@@ -631,6 +644,7 @@ void StudentWorld::addGameItems(int num, char letter) // addBoulderorGoldorBarre
 		case 'O':
 		{
 			actorAdded(new Oil(this, row, col));
+			numOfBarrels++;
 			break;
 		}
 		}
