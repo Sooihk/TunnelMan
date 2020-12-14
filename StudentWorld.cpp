@@ -176,40 +176,6 @@ void StudentWorld::setDisplaytext()
 
 }
 
-//string StudentWorld::formatText(int score, int level, int lives, int health, int squirts, int gold, int sonar, int barrels)
-//{
-//	stringstream s;
-//
-//	s.fill('0');
-//	s << "Scr: ";
-//	s << setw(6) << score;
-//
-//	s.fill(' ');
-//	s << " Lvl: ";
-//	s << setw(2) << level;
-//
-//	s << " Lives: ";
-//	s << setw(1) << lives;
-//
-//	s << "  Hlth: ";
-//	s << setw(3) << health * 10;
-//	s << '%';
-//
-//	s << "  Wtr: ";
-//	s << setw(2) << squirts;
-//
-//	s << "  Gld: ";
-//	s << setw(2) << gold;
-//
-//	s << "  Sonar: ";
-//	s << setw(2) << sonar;
-//
-//	s << "  Oil Left: ";
-//	s << setw(2) << barrels;
-//
-//	return s.str();
-//}
-
 // checks if actors are within the radius
 bool StudentWorld::actorsInRadius(int x, int y, int radius)
 {
@@ -307,55 +273,38 @@ bool StudentWorld::canActorMoveThisDirection(int x, int y, GraphObject::Directio
 	// switch case returning true or false based upon actor's movement 
 	switch (dir)
 	{
+		// case whether the actor can move left
+		case GraphObject::left:
+		{
+			// if statement checking if above the actor there isn't an earth and boulder object and current x
+			// isnt the exit point
+			return (!checkBoulder(x, y) && !checkEarth(x - 1, y) && x != 0);
+		}
+		// case whether the actor can move right
+		case GraphObject::right:
+		{
+			// if statement checking if above the actor there isn't an earth and boulder object and current x
+			// isnt the exit point
+			return (!checkBoulder(x + 1, y) && !checkEarth(x + 1, y) && x != 60);
+		}
 		// case whether the actor can move up
-	case GraphObject::up:
-	{
-		// if statement checking if above the actor there isn't an earth and boulder object and current x
-		// isnt the exit point
-		if (!checkBoulder(x, y + 1) && !checkEarth(x, y + 1) && y != 60)
+		case GraphObject::up:
 		{
-			return true;
+			// if statement checking if above the actor there isn't an earth and boulder object and current x
+			// isnt the exit point
+			return (!checkBoulder(x, y + 1) && !checkEarth(x, y + 1) && y != 60);
 		}
-		break;
-	}
-	// case whether the actor can move down
-	case GraphObject::down:
-	{
-		// if statement checking if above the actor there isn't an earth and boulder object and current x
-		// isnt the exit point
-		if (!checkBoulder(x, y - 1) && !checkEarth(x, y - 1) && y != 60)
+		// case whether the actor can move down
+		case GraphObject::down:
 		{
-			return true;
-		}
-		break;
-	}
-	// case whether the actor can move left
-	case GraphObject::left:
-	{
-		// if statement checking if above the actor there isn't an earth and boulder object and current x
+			// if statement checking if above the actor there isn't an earth and boulder object and current x
 		// isnt the exit point
-		if (!checkBoulder(x - 1, y) && !checkEarth(x - 1, y) && x != 60)
-		{
-			return true;
+			return (!checkBoulder(x, y - 1) && !checkEarth(x, y - 1) && y != 0);
 		}
-		break;
-	}
-	// case whether the actor can move right
-	case GraphObject::right:
-	{
-		// if statement checking if above the actor there isn't an earth and boulder object and current x
-		// isnt the exit point
-		if (!checkBoulder(x + 1, y) && !checkEarth(x + 1, y) && x != 60)
+		case GraphObject::none:
 		{
-			return true;
+			return false;
 		}
-		break;
-	}
-	case GraphObject::none:
-	{
-		return false;
-		break;
-	}
 	}
 	return false;
 }
