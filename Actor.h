@@ -4,7 +4,6 @@
 #include "GraphObject.h"
 #include "GameConstants.h"
 #include "StudentWorld.h"
-#include <string>
 
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
@@ -20,7 +19,7 @@ private:
 public:
 	// constructor
 	Actor(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, double size, unsigned int depth);
-	virtual ~Actor(); // destructor
+	virtual ~Actor() {};// destructor
 	virtual void doSomething() = 0; // doSomething function that gets overridden
 	virtual void actorAnnoyed(int health) {};
 	bool isAlive(); // to return whether actor is alive or dead
@@ -37,6 +36,7 @@ private:
 	int human_HP;
 public:
 	Human(StudentWorld* w, int imageNum, int xCoords, int yCoords, Direction move, int health);
+	virtual ~Human() {};
 	int getHealthPoints();
 	void decreaseHealthPoints(int damage);
 	virtual void moveTowardsDirection(Direction dir) = 0;
@@ -51,6 +51,7 @@ private:
 public:
 	Earth(StudentWorld* w, int xCoords, int yCoords); // constructor
 	virtual void doSomething(); // necessary to make Earth class not a abstract data class
+	virtual ~Earth() {};
 };
 
 // .............................. TUNNELMAN CLASS ..............................
@@ -64,6 +65,7 @@ private:
 
 public:
 	TunnelMan(StudentWorld* gameWorld); // prototype
+	virtual ~TunnelMan() {};
 	virtual void moveTowardsDirection(Direction dir); // move TunnelMan towards that direction
 	virtual void doSomething();
 	virtual void actorAnnoyed(int damage);
@@ -84,6 +86,7 @@ class Protestor : public Human
 {
 public:
 	Protestor(StudentWorld* gameWorld, int imageNum, int health); // constructor
+	virtual ~Protestor() {};
 	virtual void doSomething();
 	virtual void actorAnnoyed(int health);
 
@@ -113,12 +116,14 @@ class Regular_Protestor : public Protestor
 {
 public:
 	Regular_Protestor(StudentWorld* world);
+	virtual ~Regular_Protestor() {};
 };
 
 class Hardcore_Protestor : public Protestor
 {
 public:
 	Hardcore_Protestor(StudentWorld* world);
+	virtual ~Hardcore_Protestor() {};
 };
 
 // .............................. BOULDER CLASS ..............................
@@ -131,6 +136,7 @@ private:
 	bool fallingDown;
 public:
 	Boulder(StudentWorld* w, int xCoords, int yCoords);
+	virtual ~Boulder() {};
 	virtual void doSomething();
 	void annoyPerson();
 };
