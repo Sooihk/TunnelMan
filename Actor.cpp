@@ -658,7 +658,7 @@ GraphObject::Direction Protestor::directionTowardsTunnelMan()
 		{
 			return left;
 		}
-		if (getX() < tunnelManYLocation) // if protestor is left of tunnelman
+		if (getX() < tunnelManXLocation) // if protestor is left of tunnelman
 		{
 			return right;
 		}
@@ -670,7 +670,7 @@ GraphObject::Direction Protestor::directionTowardsTunnelMan()
 // function to check if protestor direction's has a straight line of sight to TunnelMan
 bool Protestor::straightTowardsTunnelMan(Direction dir)
 {
-	int tunnelManYLocation = getWorld()->getPlayer()->getX();
+	int tunnelManYLocation = getWorld()->getPlayer()->getY();
 	int tunnelManXLocation = getWorld()->getPlayer()->getX();
 
 	switch (dir)
