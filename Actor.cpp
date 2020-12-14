@@ -144,6 +144,7 @@ void TunnelMan::doSomething()
 			{
 				sonarCharge--;
 				getWorld()->checkGoodies(getX(), getY(), 12); // check for oil/gold within a radius of 12 units
+				getWorld()->playSound(SOUND_SONAR); 
 			}
 			break;
 		}
